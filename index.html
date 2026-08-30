@@ -476,7 +476,11 @@
     function getWeekCourses(week) {
       var data = allCourseData || FALLBACK_COURSES;
       return data.filter(function(c) {
-        return c.weeks && c.weeks.indexOf(week) !== -1;
+        if (c.weeks) return c.weeks.indexOf(week) !== -1;
+        if (c.startWeek !== undefined && c.endWeek !== undefined) {
+          return week >= c.startWeek && week <= c.endWeek;
+        }
+        return false;
       });
     }
 
@@ -621,13 +625,15 @@
             for (var ci = 0; ci < cellCourses.length; ci++) {
               var c = cellCourses[ci];
               var cc = colorMap[c.name] || 'cc-blue';
+              var sw = c.weeks ? c.weeks[0] : (c.startWeek || 1);
+              var ew = c.weeks ? c.weeks[c.weeks.length - 1] : (c.endWeek || 17);
               bodyHtml += '<div class="course-cell ' + cc + '" onclick="openSheet(event, \'' +
                 c.name.replace(/'/g, "\\'") + '\', \'' +
                 (c.teacher || '').replace(/'/g, "\\'") + '\', \'' +
                 (c.location || '').replace(/'/g, "\\'") + '\', \'' +
                 period.label + '\', \'' +
                 period.time + '\', ' +
-                (c.weeks ? c.weeks[0] : 1) + ', ' + (c.weeks ? c.weeks[c.weeks.length - 1] : 17) + ')">';
+                sw + ', ' + ew + ')">';
               bodyHtml += '<div class="cc-name"><span class="cc-dot"></span>' + c.name + '</div>';
               if (c.teacher) bodyHtml += '<div class="cc-teacher">教师：' + c.teacher + '</div>';
               if (c.location) bodyHtml += '<div class="cc-room">教室：' + c.location + '</div>';
