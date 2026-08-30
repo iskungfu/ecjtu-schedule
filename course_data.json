@@ -1,0 +1,275 @@
+[
+  {
+    "name": "操作系统",
+    "day": 1,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "31-530",
+    "teacher": "叶云青"
+  },
+  {
+    "name": "算法设计与分析",
+    "day": 1,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      5,
+      6
+    ],
+    "period": "5-6",
+    "location": "31-215",
+    "teacher": "邓志刚"
+  },
+  {
+    "name": "操作系统",
+    "day": 2,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "31-530",
+    "teacher": "叶云青"
+  },
+  {
+    "name": "软件项目管理",
+    "day": 2,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      5,
+      6
+    ],
+    "period": "5-6",
+    "location": "31-522",
+    "teacher": "丁琼"
+  },
+  {
+    "name": "前端框架技术",
+    "day": 2,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      7,
+      8
+    ],
+    "period": "7-8",
+    "location": "31-220",
+    "teacher": "万畅"
+  },
+  {
+    "name": "前端框架技术",
+    "day": 3,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "31-204",
+    "teacher": "万畅"
+  },
+  {
+    "name": "软件项目管理",
+    "day": 3,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      3,
+      4
+    ],
+    "period": "3-4",
+    "location": "31-522",
+    "teacher": "丁琼"
+  },
+  {
+    "name": "大数据技术基础",
+    "day": 3,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      7,
+      8
+    ],
+    "period": "7-8",
+    "location": "31-519",
+    "teacher": "王辉"
+  },
+  {
+    "name": "操作系统",
+    "day": 4,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      3,
+      4
+    ],
+    "period": "3-4",
+    "location": "31-530",
+    "teacher": "叶云青"
+  },
+  {
+    "name": "软件项目管理",
+    "day": 5,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "31-522",
+    "teacher": "丁琼"
+  },
+  {
+    "name": "算法设计与分析",
+    "day": 5,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      3,
+      4
+    ],
+    "period": "3-4",
+    "location": "南图301",
+    "teacher": "邓志刚"
+  },
+  {
+    "name": "大数据技术基础",
+    "day": 5,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      7,
+      8
+    ],
+    "period": "7-8",
+    "location": "31-519",
+    "teacher": "王辉"
+  },
+  {
+    "name": "形势与政策Ⅴ",
+    "day": 4,
+    "startWeek": 5,
+    "endWeek": 8,
+    "sections": [
+      5,
+      6
+    ],
+    "period": "5-6",
+    "location": "31-219",
+    "teacher": "肖泽伟"
+  },
+  {
+    "name": "JAVA Web框架技术",
+    "day": 1,
+    "startWeek": 10,
+    "endWeek": 17,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "31-528",
+    "teacher": "汪斌"
+  },
+  {
+    "name": "面向对象分析与设计",
+    "day": 1,
+    "startWeek": 10,
+    "endWeek": 17,
+    "sections": [
+      3,
+      4
+    ],
+    "period": "3-4",
+    "location": "31-205",
+    "teacher": "企业教师6"
+  },
+  {
+    "name": "人工智能基础",
+    "day": 2,
+    "startWeek": 10,
+    "endWeek": 17,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "31-409",
+    "teacher": "邬昌兴"
+  },
+  {
+    "name": "数据库应用技术",
+    "day": 2,
+    "startWeek": 10,
+    "endWeek": 17,
+    "sections": [
+      5,
+      6
+    ],
+    "period": "5-6",
+    "location": "31-216",
+    "teacher": "张月荣"
+  },
+  {
+    "name": "面向对象分析与设计",
+    "day": 4,
+    "startWeek": 10,
+    "endWeek": 17,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "31-205",
+    "teacher": "企业教师6"
+  },
+  {
+    "name": "JAVA Web框架技术",
+    "day": 4,
+    "startWeek": 10,
+    "endWeek": 17,
+    "sections": [
+      3,
+      4
+    ],
+    "period": "3-4",
+    "location": "31-528",
+    "teacher": "汪斌"
+  },
+  {
+    "name": "人工智能基础",
+    "day": 5,
+    "startWeek": 10,
+    "endWeek": 17,
+    "sections": [
+      3,
+      4
+    ],
+    "period": "3-4",
+    "location": "31-409",
+    "teacher": "邬昌兴"
+  },
+  {
+    "name": "数据库应用技术",
+    "day": 5,
+    "startWeek": 10,
+    "endWeek": 17,
+    "sections": [
+      5,
+      6
+    ],
+    "period": "5-6",
+    "location": "31-216",
+    "teacher": "张月荣"
+  }
+]
