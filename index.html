@@ -424,6 +424,23 @@
   </div>
 
   <script>
+    // Service Worker 注册
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js?v=2').then(function(reg) {
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          newWorker.addEventListener('statechange', function() {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // 新 SW 已就绪，通知用户刷新
+              if (confirm('课表已更新，点击确定刷新页面')) {
+                window.location.reload();
+              }
+            }
+          });
+        });
+      });
+    }
+
     // ── 常量 ──
     var SEMESTER_START = new Date(2026, 7, 31); // 8月31日
     var SEMESTER_TOTAL_WEEKS = 17;
