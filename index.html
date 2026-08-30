@@ -185,22 +185,22 @@
       padding: 10px 6px;
     }
     .schedule-table .period-col {
-      width: 68px;
+      width: 24px;
       background: #FAFAFA;
       font-size: 11px;
       color: var(--text-secondary);
       text-align: center;
-      padding: 8px 4px;
-      line-height: 1.5;
+      padding: 8px 2px;
+      line-height: 1.2;
     }
     .schedule-table .period-num {
       font-weight: 600;
       color: var(--text);
       font-size: 12px;
-    }
-    .schedule-table .period-time {
-      font-size: 10px;
-      color: var(--text-tertiary);
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      display: inline-block;
+      letter-spacing: 2px;
     }
     .schedule-table .day-col {
       width: 1fr;
@@ -586,7 +586,7 @@
       });
 
       // 表头
-      var headHtml = '<tr><th class="period-col">节次</th>';
+      var headHtml = '<tr><th class="period-col"><span class="period-num">节次</span></th>';
       for (var d = 0; d < 5; d++) {
         var dt = dates[d];
         var dn = DAY_NAMES[dt.getDay()];
@@ -603,7 +603,7 @@
       for (var p = 0; p < PERIODS.length; p++) {
         var period = PERIODS[p];
         bodyHtml += '<tr>';
-        bodyHtml += '<td class="period-col"><span class="period-num">' + period.label + '</span><br><span class="period-time">' + period.time + '</span></td>';
+        bodyHtml += '<td class="period-col"><span class="period-num">' + period.label + '</span></td>';
         for (var d = 0; d < 5; d++) {
           var day = d + 1;
           var dt = dates[d];
