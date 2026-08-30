@@ -553,9 +553,7 @@
   <div class="day-headers" id="dayHeaders"></div>
 
   <!-- 课程网格 -->
-  <div class="schedule-grid" id="scheduleGridWrapper">
-    <div id="scheduleGrid"></div>
-  </div>
+  <div class="schedule-grid" id="scheduleGridWrapper"></div>
 
   <!-- 底部状态栏 -->
   <div class="bottom-bar" id="bottomBar" onclick="scrollToNextClass()">
@@ -830,7 +828,7 @@ function renderScheduleGrid() {
     }
   }
 
-  document.getElementById('scheduleGrid').innerHTML = html;
+  document.getElementById('scheduleGridWrapper').innerHTML = html;
 }
 
 // ── 底部栏 ──
@@ -897,7 +895,7 @@ function scheduleTimeIndicator() {
   if (nowMinutes < totalPeriodStart || nowMinutes > totalPeriodEnd) return;
 
   // Calculate position
-  var gridEl = document.getElementById('scheduleGrid');
+  var gridEl = document.getElementById('scheduleGridWrapper');
   var gridRect = gridEl.getBoundingClientRect();
   var cells = gridEl.querySelectorAll('.grid-cell, .period-label, .empty-cell, .weekend-msg');
   // Find the today column cells
