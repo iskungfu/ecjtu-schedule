@@ -385,6 +385,69 @@
       font-weight: 500;
     }
 
+    /* ── 小米浏览器安装引导 ── */
+    .install-guide-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 60;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .install-guide-overlay.show { display: flex; }
+    .install-guide-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      width: calc(100% - 48px);
+      max-width: 360px;
+      padding: 24px 20px 20px;
+      text-align: center;
+    }
+    .install-guide-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .install-guide-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .install-guide-steps {
+      text-align: left;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 2;
+      padding: 12px 0;
+    }
+    .install-guide-steps .step-num {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      text-align: center;
+      line-height: 22px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .install-guide-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 24px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .install-guide-btn:active { opacity: 0.8; }
+
     /* ── 桌面端 ── */
     @media (min-width: 768px) {
       .header { padding: 24px 32px 20px; }
@@ -442,6 +505,15 @@
     </div>
   </div>
 
+  <div class="install-guide-overlay" id="installGuide" onclick="closeInstallGuide(event)">
+    <div class="install-guide-card" onclick="event.stopPropagation()">
+      <div class="install-guide-icon" id="guideIcon">📱</div>
+      <div class="install-guide-title" id="guideTitle">添加到桌面</div>
+      <div class="install-guide-steps" id="guideSteps"></div>
+      <button class="install-guide-btn" onclick="closeInstallGuide()">知道了</button>
+    </div>
+  </div>
+
   <script>
     // Service Worker 注册
     if ('serviceWorker' in navigator) {
@@ -462,12 +534,62 @@
 
     // PWA 安装
     var deferredPrompt;
+
+    function isXiaomiBrowser() {
+      var ua = navigator.userAgent;
+      return /MiuiBrowser|XiaoMi\/|Mi\/|MIUI/i.test(ua);
+    }
+
+    function isHuaweiBrowser() {
+      var ua = navigator.userAgent;
+      return /HuaweiBrowser|HUAWEI/i.test(ua) && !/Chrome/i.test(ua);
+    }
+
+    function isOtherInAppBrowser() {
+      // 微信、QQ、UC 等不支持 PWA 的内置浏览器
+      var ua = navigator.userAgent;
+      return /MicroMessenger|QQ\//i.test(ua) && !/Chrome/i.test(ua);
+    }
+
+    var isXiaomi = isXiaomiBrowser();
+    var isHuawei = isHuaweiBrowser();
+    var isOtherInApp = isOtherInAppBrowser();
+
+    // 小米/华为浏览器：始终显示安装按钮
+    if (isXiaomi || isHuawei) {
+      document.getElementById('installBtn').classList.add('show');
+    }
+
     window.addEventListener('beforeinstallprompt', function(e) {
       e.preventDefault();
       deferredPrompt = e;
       document.getElementById('installBtn').classList.add('show');
     });
+
     function installPWA() {
+      // 小米浏览器 → 显示引导
+      if (isXiaomi) {
+        document.getElementById('guideIcon').textContent = '📱';
+        document.getElementById('guideTitle').textContent = '添加到桌面';
+        document.getElementById('guideSteps').innerHTML =
+          '<div><span class="step-num">1</span>点击浏览器底部菜单栏中间的 <b>「三」</b> 按钮</div>' +
+          '<div><span class="step-num">2</span>在弹出菜单中找到 <b>「添加到桌面」</b></div>' +
+          '<div><span class="step-num">3</span>点击确认即可在桌面看到课表快捷方式</div>';
+        document.getElementById('installGuide').classList.add('show');
+        return;
+      }
+      // 华为浏览器 → 显示引导
+      if (isHuawei) {
+        document.getElementById('guideIcon').textContent = '📱';
+        document.getElementById('guideTitle').textContent = '添加到桌面';
+        document.getElementById('guideSteps').innerHTML =
+          '<div><span class="step-num">1</span>点击浏览器底部或右上角的 <b>菜单</b> 按钮</div>' +
+          '<div><span class="step-num">2</span>找到 <b>「添加到桌面」</b> 或 <b>「添加快捷方式」</b></div>' +
+          '<div><span class="step-num">3</span>点击确认即可在桌面看到课表</div>';
+        document.getElementById('installGuide').classList.add('show');
+        return;
+      }
+      // 其他浏览器 → 使用标准 PWA 安装
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(function(result) {
@@ -476,6 +598,11 @@
         }
         deferredPrompt = null;
       });
+    }
+
+    function closeInstallGuide(e) {
+      if (e && e.target !== document.getElementById('installGuide')) return;
+      document.getElementById('installGuide').classList.remove('show');
     }
 
     // ── 常量 ──
