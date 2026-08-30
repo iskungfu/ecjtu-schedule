@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#1a1a2e">
+  <meta name="theme-color" content="#2F6F4E">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>华东交通大学课程表</title>
@@ -12,20 +12,18 @@
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <style>
     :root {
-      --bg: #f5f6fa;
-      --card: #ffffff;
-      --text: #1a1a2e;
-      --sub: #7c7c8a;
-      --accent: #4f6ef7;
-      --accent-light: #eef1ff;
-      --border: #e8e9f0;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
-      --shadow-lg: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-      --radius-sm: 10px;
-      --radius: 16px;
-      --radius-lg: 20px;
-      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      --primary: #2F6F4E;
+      --primary-light: #6B8E7A;
+      --primary-lighter: #A8C5B0;
+      --bg: #FFFFFF;
+      --divider: #ECECEC;
+      --text-secondary: #8C8C8C;
+      --text-primary: #1A1A1A;
+      --gray-dark: #4A4A4A;
+      --gray-mid: #8C8C8C;
+      --gray-light: #C7C7C7;
+      --red-line: #E53935;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -33,472 +31,543 @@
     body {
       font-family: var(--font);
       background: var(--bg);
+      color: var(--text-primary);
       min-height: 100vh;
       min-height: 100dvh;
-      color: var(--text);
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      user-select: none;
     }
 
-    /* ── 顶部栏 ── */
-    .topbar {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      padding: 16px 20px;
-      padding-top: max(16px, env(safe-area-inset-top));
+    /* ── 顶部导航栏 56px ── */
+    .navbar {
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 0 16px;
+      padding-top: env(safe-area-inset-top);
+      border-bottom: 1px solid var(--divider);
+      background: var(--bg);
       position: sticky;
       top: 0;
       z-index: 30;
+      gap: 12px;
     }
-    .topbar-brand {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .topbar-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.3px;
-    }
-    .topbar-sub {
-      font-size: 12px;
-      color: rgba(255,255,255,0.6);
+    .navbar-left {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-weight: 400;
-    }
-    .topbar-sub .dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #4ade80;
-      display: inline-block;
-      box-shadow: 0 0 6px rgba(74,222,128,0.5);
-    }
-    .topbar-sub .dot.off { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.5); }
-    .topbar-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .icon-btn {
-      width: 38px; height: 38px;
-      border-radius: 12px;
-      border: none;
-      background: rgba(255,255,255,0.1);
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: rgba(255,255,255,0.8);
-      transition: all 0.2s;
-      backdrop-filter: blur(10px);
-    }
-    .icon-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
-    .icon-btn:active { transform: scale(0.95); }
-
-    /* ── 周切换 ── */
-    .week-nav {
-      display: flex;
-      align-items: center;
-      padding: 14px 16px 10px;
       gap: 8px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 70px;
-      z-index: 20;
-    }
-    .week-nav::-webkit-scrollbar { display: none; }
-    .week-nav-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--sub);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-right: 4px;
       flex-shrink: 0;
     }
     .week-chip {
-      flex-shrink: 0;
-      padding: 7px 16px;
-      border-radius: 20px;
-      border: 1.5px solid var(--border);
-      background: var(--card);
-      font-size: 13px;
-      color: var(--text);
-      cursor: pointer;
-      font-weight: 500;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .week-chip:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-light);
-    }
-    .week-chip.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(79,110,247,0.3);
-    }
-    .week-chip.today {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-light);
-    }
-    .week-chip.today.active {
-      background: var(--accent);
-      color: white;
-    }
-    .week-divider {
-      width: 1px;
-      height: 20px;
-      background: var(--border);
-      flex-shrink: 0;
-      margin: 0 4px;
-    }
-
-    /* ── 课表容器 ── */
-    .schedule-wrap {
-      padding: 16px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    /* ── 手机端列表（默认显示） ── */
-    .schedule-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .day-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-      transition: box-shadow 0.2s;
-    }
-    .day-card:hover { box-shadow: var(--shadow-lg); }
-    .day-card-header {
-      padding: 13px 16px;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #fafbfc;
-    }
-    .day-card-header .day-date {
-      font-size: 12px;
-      font-weight: 400;
-      color: var(--sub);
-    }
-    .day-card-header.today {
-      background: linear-gradient(135deg, #4f6ef7, #6c8cff);
-      color: #fff;
-      border-bottom-color: transparent;
-    }
-    .day-card-header.today .day-date { color: rgba(255,255,255,0.8); }
-    .day-card-body {
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-height: 44px;
-    }
-    .day-empty {
-      padding: 20px;
-      text-align: center;
-      color: #c0c0c8;
-      font-size: 13px;
-    }
-
-    /* ── 课程卡片 ── */
-    .course-block {
-      border-radius: 12px;
-      padding: 12px 14px;
-      cursor: default;
-      transition: all 0.2s ease;
-      border-left: 4px solid transparent;
-      position: relative;
-      overflow: hidden;
-    }
-    .course-block::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      opacity: 0.03;
-      background: linear-gradient(135deg, #000 0%, transparent 60%);
-      pointer-events: none;
-    }
-    .course-block:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    .course-block:active { transform: scale(0.985); }
-    .course-block .c-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.4;
-      letter-spacing: -0.2px;
-    }
-    .course-block .c-meta {
-      font-size: 12px;
-      color: #555;
-      margin-top: 4px;
-      line-height: 1.4;
-      font-weight: 500;
-    }
-    .course-block .c-loc {
-      font-size: 11px;
-      color: #777;
-      margin-top: 3px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .course-block .c-loc .c-tag {
       display: inline-flex;
       align-items: center;
-      gap: 3px;
-      background: rgba(0,0,0,0.06);
-      padding: 2px 8px;
-      border-radius: 6px;
+      gap: 4px;
+      background: var(--primary);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .week-chip .chip-today {
+      display: inline-block;
+      background: rgba(255,255,255,0.25);
+      padding: 0 5px;
+      border-radius: 3px;
       font-size: 10px;
       font-weight: 500;
+      margin-left: 2px;
+    }
+    .week-chip-arrow {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+    .navbar-center {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .navbar-right {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .nav-icon {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      border-radius: 4px;
+    }
+    .nav-icon:active { background: var(--divider); }
+
+    .week-dropdown {
+      display: none;
+      position: absolute;
+      top: 56px;
+      left: 16px;
+      background: var(--bg);
+      border: 1px solid var(--divider);
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 40;
+      max-height: 280px;
+      overflow-y: auto;
+      min-width: 140px;
+    }
+    .week-dropdown.show { display: block; }
+    .week-dropdown-item {
+      padding: 10px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--divider);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .week-dropdown-item:last-child { border-bottom: none; }
+    .week-dropdown-item:active { background: var(--divider); }
+    .week-dropdown-item.active { color: var(--primary); font-weight: 600; }
+    .week-dropdown-item .dw-tag {
+      font-size: 10px;
+      background: var(--primary);
+      color: white;
+      padding: 1px 6px;
+      border-radius: 3px;
     }
 
-    /* ── 桌面端网格（≥768px） ── */
-    @media (min-width: 768px) {
-      .schedule-list { display: none; }
-      .schedule-wrap {
-        padding: 20px 24px;
-      }
-      .schedule-grid {
-        display: grid;
-        grid-template-columns: 70px repeat(5, 1fr);
-        border-radius: var(--radius-lg);
-        background: var(--card);
-        box-shadow: var(--shadow-lg);
-        overflow: hidden;
-        border: 1px solid var(--border);
-      }
-
-      /* 列头 */
-      .schedule-grid .col-head {
-        padding: 14px 8px;
-        text-align: center;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--sub);
-        background: #fafbfc;
-        border-bottom: 1px solid var(--border);
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-      }
-      .schedule-grid .col-head:first-child {
-        color: transparent;
-        user-select: none;
-      }
-      .col-head .col-date {
-        font-size: 11px;
-        font-weight: 400;
-        color: #999;
-        display: block;
-        margin-top: 2px;
-        text-transform: none;
-        letter-spacing: 0;
-      }
-      /* 今天列头高亮 */
-      .col-head.today-head {
-        background: linear-gradient(180deg, #eef1ff 0%, #fafbfc 100%);
-        color: var(--accent) !important;
-        font-weight: 700;
-      }
-      .col-head.today-head .col-date {
-        color: var(--accent);
-        font-weight: 600;
-      }
-
-      /* 行标签（时间列） */
-      .schedule-grid .row-label {
-        padding: 10px 6px;
-        text-align: center;
-        font-size: 11px;
-        color: var(--sub);
-        border-right: 1px solid var(--border);
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 2px;
-        line-height: 1.3;
-        background: #fafbfc;
-        font-weight: 500;
-      }
-      .schedule-grid .row-label .period {
-        font-weight: 700;
-        color: #444;
-        font-size: 13px;
-      }
-
-      /* 单元格 */
-      .schedule-grid .cell {
-        border-bottom: 1px solid #f0f0f6;
-        border-right: 1px solid #f0f0f6;
-        padding: 6px;
-        min-height: 80px;
-        position: relative;
-        transition: background 0.15s;
-      }
-      .schedule-grid .cell:hover {
-        background: #fafbfd;
-      }
-      .schedule-grid .cell:nth-child(6n) { border-right: none; }
-      /* 今天列 */
-      .cell.today-col {
-        background: rgba(79,110,247,0.02);
-      }
-
-      .course-block {
-        padding: 8px 10px;
-        border-radius: 10px;
-        border-left-width: 3px;
-      }
-      .course-block .c-name { font-size: 12.5px; }
-      .course-block .c-meta { font-size: 10px; margin-top: 2px; }
-      .course-block .c-loc { font-size: 10px; margin-top: 2px; }
-      .course-block .c-loc .c-tag { font-size: 9px; padding: 1px 6px; }
+    /* ── 星期表头 40px ── */
+    .day-headers {
+      display: grid;
+      grid-template-columns: 48px repeat(7, 1fr);
+      height: 40px;
+      border-bottom: 1px solid var(--divider);
+      background: var(--bg);
+      position: sticky;
+      top: 56px;
+      z-index: 20;
+    }
+    .day-header-corner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+    .day-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+      position: relative;
+      padding-top: 2px;
+    }
+    .day-header .day-name {
+      font-weight: 500;
+      line-height: 1;
+    }
+    .day-header .day-date {
+      font-size: 10px;
+      color: var(--text-secondary);
+      line-height: 1;
+      margin-top: 1px;
+    }
+    .day-header.today {
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+    .day-header.today::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary);
+    }
+    .day-header.today .day-date {
+      color: var(--text-primary);
+    }
+    .day-header.weekend {
+      color: var(--gray-mid);
+    }
+    .day-header.weekend .day-date {
+      color: var(--gray-mid);
     }
 
-    /* ── 课程颜色系统 ── */
-    .c-操作系统      { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left-color: #43a047; }
-    .c-算法设计与分析 { background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); border-left-color: #e53935; }
-    .c-软件项目管理   { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left-color: #1e88e5; }
-    .c-前端框架技术   { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left-color: #fb8c00; }
-    .c-大数据技术基础 { background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border-left-color: #8e24aa; }
-    .c-形势与政策     { background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%); border-left-color: #f9a825; }
-    .c-JAVA           { background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%); border-left-color: #00acc1; }
-    .c-面向对象分析与设计 { background: linear-gradient(135deg, #fbe9e7 0%, #ffccbc 100%); border-left-color: #f4511e; }
-    .c-人工智能基础   { background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%); border-left-color: #3949ab; }
-    .c-数据库应用技术 { background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); border-left-color: #00897b; }
+    /* ── 课程网格 ── */
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 48px repeat(7, 1fr);
+      background: var(--bg);
+      border-bottom: 1px solid var(--divider);
+      position: relative;
+    }
+    .period-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 8px 2px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      background: #FAFAFA;
+      border-right: 1px solid var(--divider);
+      border-bottom: 1px solid var(--divider);
+      min-height: 72px;
+      line-height: 1.4;
+    }
+    .period-label .period-num {
+      font-weight: 600;
+      color: var(--gray-dark);
+      font-size: 11px;
+    }
+    .period-label .period-time {
+      font-size: 9px;
+      color: var(--text-secondary);
+    }
+    .grid-cell {
+      border-bottom: 1px solid var(--divider);
+      border-right: 1px solid var(--divider);
+      min-height: 72px;
+      padding: 3px;
+      position: relative;
+      background: var(--bg);
+    }
+    .grid-cell:nth-child(8n) { border-right: none; }
+    .grid-cell.weekend-cell {
+      background: #FAFAFA;
+    }
+    .grid-cell.today-col {
+      /* subtle highlight for today's column */
+    }
+    .grid-cell.current-period {
+      /* right border highlight */
+      box-shadow: inset 2px 0 0 var(--primary);
+    }
+    .grid-cell.current-period::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
 
-    /* ── 底部提示 ── */
-    .notice-bar {
-      padding: 12px 24px 24px;
+    /* 课程卡片 */
+    .course-card {
+      border-radius: 4px;
+      padding: 6px 8px;
+      margin-bottom: 2px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: opacity 0.1s;
+    }
+    .course-card:active { opacity: 0.85; }
+    .course-card .cc-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .course-card .cc-room {
+      font-size: 10px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .course-card .cc-teacher {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 6 种课程色 */
+    .cc-0 { background: #2F6F4E; }
+    .cc-1 { background: #6B8E7A; }
+    .cc-2 { background: #A8C5B0; }
+    .cc-2 .cc-name { color: var(--text-primary); }
+    .cc-2 .cc-room { color: rgba(0,0,0,0.6); }
+    .cc-2 .cc-teacher { color: rgba(0,0,0,0.45); }
+    .cc-3 { background: #4A4A4A; }
+    .cc-4 { background: #8C8C8C; }
+    .cc-5 { background: #C7C7C7; }
+    .cc-5 .cc-name { color: var(--text-primary); }
+    .cc-5 .cc-room { color: rgba(0,0,0,0.6); }
+    .cc-5 .cc-teacher { color: rgba(0,0,0,0.45); }
+
+    /* 周末格子 */
+    .weekend-msg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 72px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: #FAFAFA;
+      border-bottom: 1px solid var(--divider);
+      border-right: 1px solid var(--divider);
+      grid-column: span 2;
+    }
+    .weekend-msg-inner {
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* 空课格 */
+    .empty-cell {
+      min-height: 72px;
+      border-bottom: 1px solid var(--divider);
+      border-right: 1px solid var(--divider);
+      background: var(--bg);
+    }
+    .empty-cell:nth-child(8n) { border-right: none; }
+
+    /* ── 当前时间红线 ── */
+    .time-indicator {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--red-line);
+      z-index: 10;
+      pointer-events: none;
+    }
+    .time-indicator-label {
+      position: absolute;
+      left: -48px;
+      top: -8px;
+      font-size: 9px;
+      color: var(--red-line);
+      font-weight: 600;
+      white-space: nowrap;
+      background: var(--bg);
+      padding: 1px 3px;
+    }
+
+    /* ── 底部状态栏 64px ── */
+    .bottom-bar {
+      height: 64px;
+      padding: 0 16px;
+      padding-bottom: env(safe-area-inset-bottom);
+      background: #F5F5F5;
+      border-top: 1px solid var(--divider);
+      display: flex;
+      align-items: center;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      cursor: pointer;
+      gap: 10px;
+    }
+    .bottom-bar:active { background: #EEEEEE; }
+    .bottom-bar-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    .bottom-bar-info {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── 底部 Sheet ── */
+    .sheet-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 50;
+    }
+    .sheet-overlay.show { display: block; }
+    .sheet-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-radius: 12px 12px 0 0;
+      z-index: 51;
+      padding: 20px 16px 32px;
+      padding-bottom: calc(32px + env(safe-area-inset-bottom));
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+    .sheet-panel.show { transform: translateY(0); }
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--divider);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+    .sheet-course-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .sheet-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
-      color: var(--sub);
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--divider);
+    }
+    .sheet-row:last-child { border-bottom: none; }
+    .sheet-row-label {
+      color: var(--text-secondary);
+      font-size: 13px;
+      width: 56px;
+      flex-shrink: 0;
+    }
+
+    /* ── 空课状态 ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      max-width: 1200px;
-      margin: 0 auto;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.8;
     }
-    .notice-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #4ade80;
-      box-shadow: 0 0 6px rgba(74,222,128,0.4);
-    }
-    .notice-dot.syncing { background: #f59e0b; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* ── 加载空态 ── */
-    .skeleton {
-      animation: shimmer 1.5s infinite;
-      background: linear-gradient(90deg, #f0f0f5 25%, #e5e5ea 50%, #f0f0f5 75%);
-      background-size: 200% 100%;
-      border-radius: 8px;
-    }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-    /* ── 响应式断点：平板竖屏 ── */
-    @media (min-width: 640px) and (max-width: 767px) {
-      .schedule-list { display: none; }
-      .schedule-wrap { padding: 12px; }
+    /* ── 响应式：桌面端 ── */
+    @media (min-width: 768px) {
       .schedule-grid {
-        display: grid;
-        grid-template-columns: 55px repeat(5, 1fr);
-        border-radius: var(--radius-lg);
-        background: var(--card);
-        box-shadow: var(--shadow-lg);
-        overflow: hidden;
-        border: 1px solid var(--border);
+        max-width: 960px;
+        margin: 0 auto;
+        border-left: 1px solid var(--divider);
+        border-right: 1px solid var(--divider);
       }
-      .schedule-grid .col-head {
-        padding: 10px 4px;
-        font-size: 11px;
-        background: #fafbfc;
-        border-bottom: 1px solid var(--border);
+      .day-headers {
+        max-width: 960px;
+        margin: 0 auto;
+        border-left: 1px solid var(--divider);
+        border-right: 1px solid var(--divider);
       }
-      .schedule-grid .col-head:first-child { color: transparent; }
-      .col-head .col-date { font-size: 9px; }
-      .schedule-grid .row-label {
-        padding: 6px 3px;
-        font-size: 10px;
-        border-right: 1px solid var(--border);
-        border-bottom: 1px solid var(--border);
-        background: #fafbfc;
+      .grid-cell, .period-label, .empty-cell {
+        min-height: 80px;
       }
-      .schedule-grid .row-label .period { font-size: 11px; }
-      .schedule-grid .cell {
-        padding: 3px;
-        min-height: 60px;
-        border-bottom: 1px solid #f0f0f6;
-        border-right: 1px solid #f0f0f6;
+      .course-card {
+        padding: 8px 10px;
       }
-      .schedule-grid .cell:nth-child(6n) { border-right: none; }
-      .course-block {
-        padding: 4px 6px;
-        border-radius: 6px;
-        border-left-width: 2px;
+      .course-card .cc-name { font-size: 13px; }
+      .course-card .cc-room { font-size: 11px; }
+      .course-card .cc-teacher { font-size: 11px; }
+      .navbar { padding: 0 24px; }
+      .bottom-bar { padding: 0 24px; }
+      .sheet-panel {
+        max-width: 480px;
+        left: 50%;
+        transform: translate(-50%, 100%);
       }
-      .course-block .c-name { font-size: 10px; }
-      .course-block .c-meta { font-size: 8px; }
-      .course-block .c-loc { font-size: 8px; }
+      .sheet-panel.show { transform: translate(-50%, 0); }
+    }
+
+    @media (min-width: 1024px) {
+      .schedule-grid, .day-headers {
+        max-width: 1100px;
+      }
+      .grid-cell, .period-label, .empty-cell {
+        min-height: 90px;
+      }
+      .grid-cell { padding: 4px; }
+      .course-card { padding: 8px 12px; }
+      .course-card .cc-name { font-size: 14px; }
+      .course-card .cc-room { font-size: 12px; }
+      .course-card .cc-teacher { font-size: 12px; }
+    }
+
+    /* ── 加载状态 ── */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: var(--text-secondary);
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="topbar-brand">
-      <div class="topbar-title">华东交通大学课程表</div>
-      <div class="topbar-sub" id="syncStatus">
-        <span class="dot" id="syncDot"></span>
-        <span id="syncText">加载中...</span>
+  <!-- 顶部导航栏 -->
+  <div class="navbar" id="navbar">
+    <div class="navbar-left" id="weekChipWrap">
+      <div class="week-chip" id="weekChip" onclick="toggleWeekDropdown()">
+        <span id="weekChipText">第 1 周</span>
+        <span class="week-chip-arrow">▾</span>
       </div>
     </div>
-    <div class="topbar-actions">
-      <button class="icon-btn" id="refreshBtn" title="刷新数据">↻</button>
+    <div class="navbar-center" id="dateRange"></div>
+    <div class="navbar-right">
+      <button class="nav-icon" onclick="goToCurrentWeek()" title="回到本周">↺</button>
+      <button class="nav-icon" onclick="refreshData()" title="刷新数据">↻</button>
     </div>
   </div>
+  <div class="week-dropdown" id="weekDropdown"></div>
 
-  <div class="week-nav" id="weekBar"></div>
+  <!-- 星期表头 -->
+  <div class="day-headers" id="dayHeaders"></div>
 
-  <div class="schedule-wrap">
-    <div class="schedule-grid" id="scheduleGrid"></div>
-    <div class="schedule-list" id="scheduleList"></div>
+  <!-- 课程网格 -->
+  <div class="schedule-grid" id="scheduleGridWrapper">
+    <div id="scheduleGrid"></div>
   </div>
 
-  <div class="notice-bar" id="noticeBar">
-    <span class="notice-dot" id="noticeDot"></span>
-    <span id="noticeText">准备就绪</span>
+  <!-- 底部状态栏 -->
+  <div class="bottom-bar" id="bottomBar" onclick="scrollToNextClass()">
+    <span class="bottom-bar-label">下一节</span>
+    <span class="bottom-bar-info" id="bottomBarInfo">加载中...</span>
+  </div>
+
+  <!-- 课程详情 Sheet -->
+  <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+  <div class="sheet-panel" id="sheetPanel">
+    <div class="sheet-handle"></div>
+    <div id="sheetContent"></div>
   </div>
 
 <script>
@@ -513,34 +582,35 @@ var SEMESTER_START = new Date('2026-08-31');
 var TOTAL_WEEKS = 17;
 var DAY_NAMES = ['周日','周一','周二','周三','周四','周五','周六'];
 var PERIODS = [
-  {label:'1-2节', time:'08:00-09:40'},
-  {label:'3-4节', time:'10:10-11:50'},
-  {label:'5-6节', time:'14:00-15:40'},
-  {label:'7-8节', time:'16:10-17:50'}
+  {label:'1-2节', time:'08:00-09:40', startMin: 8*60, endMin: 9*60+40},
+  {label:'3-4节', time:'10:10-11:50', startMin: 10*60+10, endMin: 11*60+50},
+  {label:'5-6节', time:'14:00-15:40', startMin: 14*60, endMin: 15*60+40},
+  {label:'7-8节', time:'16:10-17:50', startMin: 16*60+10, endMin: 17*60+50}
 ];
 
+// 课程色映射（6 种颜色，基于主色 + 灰阶）
 var COURSE_COLORS = {
-  '操作系统': 'os', '算法设计与分析': 'algo', '软件项目管理': 'pm',
-  '前端框架技术': 'fe', '大数据技术基础(B)': 'bd', '大数据技术基础': 'bd',
-  '形势与政策Ⅴ': 'policy', '形势与政策': 'policy',
-  'JAVA Web框架技术': 'java', '面向对象分析与设计': 'oo',
-  '人工智能基础': 'ai', '数据库应用技术': 'db'
+  '操作系统': 0, '算法设计与分析': 1, '软件项目管理': 2,
+  '前端框架技术': 3, '大数据技术基础(B)': 4, '大数据技术基础': 4,
+  '形势与政策Ⅴ': 5, '形势与政策': 5,
+  'JAVA Web框架技术': 1, '面向对象分析与设计': 0,
+  '人工智能基础': 3, '数据库应用技术': 4
 };
 
 var courseData = [{"name": "操作系统", "day": 1, "startWeek": 1, "endWeek": 8, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-530", "teacher": "叶云青"}, {"name": "算法设计与分析", "day": 1, "startWeek": 1, "endWeek": 8, "sections": [5, 6], "period": "5-6", "time": "14:00-15:40", "location": "31-215", "teacher": "邓志刚"}, {"name": "操作系统", "day": 2, "startWeek": 1, "endWeek": 8, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-530", "teacher": "叶云青"}, {"name": "软件项目管理", "day": 2, "startWeek": 1, "endWeek": 8, "sections": [5, 6], "period": "5-6", "time": "14:00-15:40", "location": "31-522", "teacher": "丁琼"}, {"name": "前端框架技术", "day": 2, "startWeek": 1, "endWeek": 8, "sections": [7, 8], "period": "7-8", "time": "16:10-17:50", "location": "31-220", "teacher": "万畅"}, {"name": "前端框架技术", "day": 3, "startWeek": 1, "endWeek": 8, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-204", "teacher": "万畅"}, {"name": "软件项目管理", "day": 3, "startWeek": 1, "endWeek": 8, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-522", "teacher": "丁琼"}, {"name": "大数据技术基础(B)", "day": 3, "startWeek": 1, "endWeek": 8, "sections": [7, 8], "period": "7-8", "time": "16:10-17:50", "location": "31-519", "teacher": "王辉"}, {"name": "操作系统", "day": 4, "startWeek": 1, "endWeek": 8, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-530", "teacher": "叶云青"}, {"name": "软件项目管理", "day": 5, "startWeek": 1, "endWeek": 8, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-522", "teacher": "丁琼"}, {"name": "算法设计与分析", "day": 5, "startWeek": 1, "endWeek": 8, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "南图301", "teacher": "邓志刚"}, {"name": "大数据技术基础(B)", "day": 5, "startWeek": 1, "endWeek": 8, "sections": [7, 8], "period": "7-8", "time": "16:10-17:50", "location": "31-519", "teacher": "王辉"}, {"name": "形势与政策Ⅴ", "day": 4, "startWeek": 5, "endWeek": 8, "sections": [5, 6], "period": "5-6", "time": "14:00-15:40", "location": "31-219", "teacher": "肖泽伟"}, {"name": "JAVA Web框架技术", "day": 1, "startWeek": 10, "endWeek": 17, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-528", "teacher": "汪斌"}, {"name": "面向对象分析与设计", "day": 1, "startWeek": 10, "endWeek": 17, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-205", "teacher": "企业教师6"}, {"name": "人工智能基础", "day": 2, "startWeek": 10, "endWeek": 17, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-409", "teacher": "邬昌兴"}, {"name": "数据库应用技术", "day": 2, "startWeek": 10, "endWeek": 17, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-205", "teacher": "企业教师1"}, {"name": "面向对象分析与设计", "day": 4, "startWeek": 10, "endWeek": 17, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-205", "teacher": "企业教师6"}, {"name": "JAVA Web框架技术", "day": 4, "startWeek": 10, "endWeek": 17, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-528", "teacher": "汪斌"}, {"name": "人工智能基础", "day": 5, "startWeek": 10, "endWeek": 17, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-409", "teacher": "邬昌兴"}, {"name": "数据库应用技术", "day": 5, "startWeek": 10, "endWeek": 17, "sections": [5, 6], "period": "5-6", "time": "14:00-15:40", "location": "31-216", "teacher": "企业教师1"}];
 var dataSource = 'fallback';
 var currentWeek = 1;
 
-// ── 周次计算 ──
+// ── 工具函数 ──
 function getNowWeek() {
   var now = new Date();
-  var diff = Math.floor((now - SEMESTER_START) / (7 * 24 * 60 * 60 * 1000)) + 1;
+  var diff = Math.floor((now - SEMESTER_START) / (7*24*60*60*1000)) + 1;
   return Math.max(1, Math.min(TOTAL_WEEKS, diff));
 }
 
 function getWeekDates(weekNum) {
   var mon = new Date(SEMESTER_START);
-  mon.setDate(mon.getDate() + (weekNum - 1) * 7);
+  mon.setDate(mon.getDate() + (weekNum-1)*7);
   var dates = [];
   for (var i = 0; i < 7; i++) {
     var d = new Date(mon);
@@ -550,25 +620,13 @@ function getWeekDates(weekNum) {
   return dates;
 }
 
-function formatDate(d) {
-  return (d.getMonth()+1) + '/' + d.getDate();
-}
-
-function formatDateFull(d) {
-  return (d.getMonth()+1) + '月' + d.getDate() + '日';
-}
-
+function formatMD(d) { return (d.getMonth()+1)+'/'+d.getDate(); }
+function formatFull(d) { return (d.getMonth()+1)+'月'+d.getDate()+'日'; }
 function isoDate(d) {
-  var y = d.getFullYear();
-  var m = String(d.getMonth()+1).padStart(2,'0');
-  var day = String(d.getDate()).padStart(2,'0');
-  return y + '-' + m + '-' + day;
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
-
-function isSameDay(d1, d2) {
-  return d1.getFullYear() === d2.getFullYear() &&
-         d1.getMonth() === d2.getMonth() &&
-         d1.getDate() === d2.getDate();
+function isSameDay(a,b) {
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
 }
 
 // ── 解析教务 HTML ──
@@ -592,14 +650,14 @@ function parseHtmlCourses(html) {
       var wk = li.match(/周次：([^<]+)/);
       var loc = li.match(/地点：([^<\s]+(?:\s[^<]+)?)/);
       var tch = li.match(/教师：([^<]+)/);
+      var p = PERIODS.find(function(x){return x.label===sec&&sec[1];});
       results.push({
-        name: name,
-        day: day,
-        startWeek: parseInt((wk&&wk[1]||'1-1').split('-')[0]) || 1,
-        endWeek: parseInt((wk&&wk[1]||'1-1').split('-')[1]) || 1,
+        name: name, day: day,
+        startWeek: parseInt((wk&&wk[1]||'1-1').split('-')[0])||1,
+        endWeek: parseInt((wk&&wk[1]||'1-1').split('-')[1])||1,
         sections: (sec&&sec[1]||'1-2').split('-').map(function(s){return parseInt(s)}),
         period: sec&&sec[1]||'1-2',
-        time: PERIODS.find(function(p){return p.label===sec&&sec[1]}) ? PERIODS.find(function(p){return p.label===sec&&sec[1]}).time : '',
+        time: p?p.time:'',
         location: (loc&&loc[1]||'').trim(),
         teacher: (tch&&tch[1]||'').trim()
       });
@@ -611,17 +669,16 @@ function parseHtmlCourses(html) {
 // ── 拉取教务数据 ──
 async function fetchWeekData(weekNum) {
   var dates = getWeekDates(weekNum);
-  var all = [];
-  var ok = 0;
+  var all = [], ok = 0;
   for (var i = 0; i < dates.length; i++) {
     var d = dates[i];
-    if (d.getDay() === 0 || d.getDay() === 6) continue;
+    if (d.getDay()===0 || d.getDay()===6) continue;
     try {
-      var url = API_BASE + '?weiXinID=' + WEI_XIN_ID + '&date=' + isoDate(d);
+      var url = API_BASE+'?weiXinID='+WEI_XIN_ID+'&date='+isoDate(d);
       var r = await fetch(url, {mode:'cors'});
       if (r.ok) {
         var html = await r.text();
-        if (html.indexOf('imgs/today_schedule') === -1) {
+        if (html.indexOf('imgs/today_schedule')===-1) {
           all = all.concat(parseHtmlCourses(html));
           ok++;
         }
@@ -631,146 +688,365 @@ async function fetchWeekData(weekNum) {
   return {courses:all, ok:ok, total:5};
 }
 
+// ── 课程颜色 ──
+function getColorIndex(name) {
+  return COURSE_COLORS[name] !== undefined ? COURSE_COLORS[name] : 5;
+}
+
 // ── 渲染 ──
 function renderAll() {
-  renderWeekBar();
-  renderSchedule();
+  renderWeekDropdown();
+  renderDateRange();
+  renderDayHeaders();
+  renderScheduleGrid();
+  updateBottomBar();
+  scheduleTimeIndicator();
 }
 
-function getCourseClass(name) {
-  var key = COURSE_COLORS[name] || '';
-  return key ? 'c-' + key : '';
-}
-
-function renderWeekBar() {
-  var bar = document.getElementById('weekBar');
+function renderWeekDropdown() {
   var now = getNowWeek();
-  var html = '<span class="week-nav-label">周次</span>';
+  var chip = document.getElementById('weekChipText');
+  var isNow = currentWeek === now;
+  chip.innerHTML = '第 ' + currentWeek + ' 周' + (isNow ? ' <span class="chip-today">今</span>' : '');
+
+  var dd = document.getElementById('weekDropdown');
+  var html = '';
   for (var w = 1; w <= TOTAL_WEEKS; w++) {
-    if (w === 9) {
-      html += '<span class="week-divider"></span>';
-      continue;
-    }
-    var cls = 'week-chip';
-    if (w === currentWeek) cls += ' active';
-    if (w === now) cls += ' today';
-    html += '<button class="' + cls + '" data-week="' + w + '">第' + w + '周</button>';
+    if (w === 9) continue;
+    var cls = (w === currentWeek) ? 'week-dropdown-item active' : 'week-dropdown-item';
+    var tag = (w === now) ? ' <span class="dw-tag">今</span>' : '';
+    html += '<div class="'+cls+'" onclick="selectWeek('+w+')">第 '+w+' 周'+tag+'</div>';
   }
-  bar.innerHTML = html;
-
-  var chips = bar.querySelectorAll('.week-chip');
-  for (var i = 0; i < chips.length; i++) {
-    chips[i].onclick = function() {
-      currentWeek = parseInt(this.dataset.week);
-      renderAll();
-      return false;
-    };
-  }
+  dd.innerHTML = html;
 }
 
-function renderCourseBlock(c) {
-  var cls = getCourseClass(c.name);
-  return '<div class="course-block ' + cls + '">' +
-    '<div class="c-name">' + c.name + '</div>' +
-    '<div class="c-meta">' + c.period + '节 ' + (c.time||'') + '</div>' +
-    '<div class="c-loc">' +
-    (c.location ? '<span class="c-tag">📍 ' + c.location + '</span>' : '') +
-    (c.teacher ? '<span class="c-tag">👤 ' + c.teacher + '</span>' : '') +
-    '</div>' +
-    '</div>';
-}
-
-function renderSchedule() {
+function renderDateRange() {
   var dates = getWeekDates(currentWeek);
+  var el = document.getElementById('dateRange');
+  el.textContent = formatFull(dates[0]) + ' - ' + formatFull(dates[6]);
+}
+
+function renderDayHeaders() {
+  var dates = getWeekDates(currentWeek);
+  var today = new Date();
+  var html = '<div class="day-header-corner"></div>';
+  for (var d = 0; d < 7; d++) {
+    var dt = dates[d];
+    var dn = DAY_NAMES[dt.getDay()];
+    var isToday = isSameDay(dt, today);
+    var isWeekend = (dt.getDay()===0 || dt.getDay()===6);
+    var cls = 'day-header';
+    if (isToday) cls += ' today';
+    if (isWeekend) cls += ' weekend';
+    html += '<div class="'+cls+'">';
+    html += '<span class="day-name">'+dn+'</span>';
+    html += '<span class="day-date">'+formatMD(dt)+'</span>';
+    html += '</div>';
+  }
+  document.getElementById('dayHeaders').innerHTML = html;
+}
+
+function renderScheduleGrid() {
+  var dates = getWeekDates(currentWeek);
+  var today = new Date();
   var weekCourses = courseData.filter(function(c) {
     return currentWeek >= c.startWeek && currentWeek <= c.endWeek;
   });
-  var today = new Date();
 
-  // ── 桌面端网格 ──
-  var grid = document.getElementById('scheduleGrid');
-  var ghtml = '<div class="col-head"></div>';
-  for (var d = 1; d <= 5; d++) {
-    var dt = dates[d-1];
-    var wd = DAY_NAMES[dt.getDay()];
-    var isToday = isSameDay(dt, today);
-    var headCls = isToday ? 'col-head today-head' : 'col-head';
-    ghtml += '<div class="' + headCls + '">' + wd + '<span class="col-date">' + formatDate(dt) + '</span></div>';
+  var nowMinutes = today.getHours()*60 + today.getMinutes();
+  var currentPeriodIdx = -1;
+  for (var p = 0; p < PERIODS.length; p++) {
+    if (nowMinutes >= PERIODS[p].startMin && nowMinutes <= PERIODS[p].endMin) {
+      currentPeriodIdx = p;
+      break;
+    }
   }
-  for (var p = 0; p < 4; p++) {
+
+  var html = '';
+  for (var p = 0; p < PERIODS.length; p++) {
     var period = PERIODS[p];
-    ghtml += '<div class="row-label"><span class="period">' + period.label + '</span>' + period.time + '</div>';
-    for (var d = 1; d <= 5; d++) {
-      var dt = dates[d-1];
+    html += '<div class="period-label">';
+    html += '<span class="period-num">'+period.label+'</span>';
+    html += '<span class="period-time">'+period.time+'</span>';
+    html += '</div>';
+
+    for (var d = 0; d < 7; d++) {
+      var dt = dates[d];
+      var day = d + 1;
       var isToday = isSameDay(dt, today);
+      var isWeekend = (dt.getDay()===0 || dt.getDay()===6);
+
+      if (isWeekend) {
+        // Only show weekend message once per day column
+        if (p === 0) {
+          html += '<div class="weekend-msg" style="grid-row: span '+PERIODS.length+'">';
+          html += '<div class="weekend-msg-inner">周末</div>';
+          html += '</div>';
+        }
+        continue;
+      }
+
       var cellCourses = weekCourses.filter(function(c) {
-        if (c.day !== d) return false;
-        var pStart = p * 2 + 1;
-        var pEnd = p * 2 + 2;
+        if (c.day !== day) return false;
+        var pStart = p*2 + 1;
+        var pEnd = p*2 + 2;
         return c.sections[0] <= pEnd && c.sections[c.sections.length-1] >= pStart;
       });
-      var cellCls = isToday ? 'cell today-col' : 'cell';
-      ghtml += '<div class="' + cellCls + '">';
+
+      var cls = 'grid-cell';
+      if (isToday) cls += ' today-col';
+      if (isToday && p === currentPeriodIdx) cls += ' current-period';
+
+      html += '<div class="'+cls+'">';
       for (var ci = 0; ci < cellCourses.length; ci++) {
-        ghtml += renderCourseBlock(cellCourses[ci]);
+        var c = cellCourses[ci];
+        var ci2 = getColorIndex(c.name);
+        html += '<div class="course-card cc-'+ci2+'" onclick="openSheet(event, \''+
+          c.name.replace(/'/g,"\\'")+'\', \''+
+          (c.teacher||'').replace(/'/g,"\\'")+'\', \''+
+          (c.location||'').replace(/'/g,"\\'")+'\', \''+
+          c.period+'\', \''+
+          (c.time||'').replace(/'/g,"\\'")+'\', '+
+          c.startWeek+', '+c.endWeek+')">';
+        html += '<div class="cc-name">'+c.name+'</div>';
+        html += '<div class="cc-room">'+(c.location||'')+'</div>';
+        html += '<div class="cc-teacher">'+(c.teacher||'')+'</div>';
+        html += '</div>';
       }
-      ghtml += '</div>';
+      html += '</div>';
+    }
+
+    // Lunch break after 3-4节
+    if (p === 1) {
+      html += '<div class="period-label" style="min-height:20px;font-size:9px;color:var(--text-secondary);border-bottom:1px dashed var(--divider)">';
+      html += '午休';
+      html += '</div>';
+      for (var d2 = 0; d2 < 7; d2++) {
+        var dt2 = dates[d2];
+        var isWE2 = (dt2.getDay()===0 || dt2.getDay()===6);
+        if (isWE2) continue;
+        html += '<div class="empty-cell" style="min-height:20px;border-bottom:1px dashed var(--divider)"></div>';
+      }
     }
   }
-  grid.innerHTML = ghtml;
 
-  // ── 手机端列表 ──
-  var list = document.getElementById('scheduleList');
-  var lhtml = '';
-  for (var d = 1; d <= 5; d++) {
-    var dt2 = dates[d-1];
-    var wd2 = DAY_NAMES[dt2.getDay()];
-    var isToday2 = isSameDay(dt2, today);
-    var dayCourses = weekCourses.filter(function(c) { return c.day === d; });
-    dayCourses.sort(function(a,b) { return a.sections[0] - b.sections[0]; });
-
-    lhtml += '<div class="day-card">';
-    lhtml += '<div class="day-card-header' + (isToday2 ? ' today' : '') + '">';
-    lhtml += '<span>' + wd2 + '</span>';
-    lhtml += '<span class="day-date">' + formatDateFull(dt2) + '</span>';
-    lhtml += '</div>';
-    lhtml += '<div class="day-card-body">';
-    if (dayCourses.length === 0) {
-      lhtml += '<div class="day-empty">这天没有课 🎉</div>';
-    } else {
-      for (var ci = 0; ci < dayCourses.length; ci++) {
-        lhtml += renderCourseBlock(dayCourses[ci]);
-      }
-    }
-    lhtml += '</div></div>';
-  }
-  list.innerHTML = lhtml;
+  document.getElementById('scheduleGrid').innerHTML = html;
 }
 
-// ── 状态更新 ──
-function updateStatus(text, ok) {
-  var dot = document.getElementById('syncDot');
-  var txt = document.getElementById('syncText');
-  var ndot = document.getElementById('noticeDot');
-  var ntxt = document.getElementById('noticeText');
-  dot.className = ok ? 'dot' : 'dot off';
-  txt.textContent = text;
-  ndot.className = ok ? 'notice-dot' : 'notice-dot syncing';
-  ntxt.textContent = ok ? '已同步教务系统' : text;
+// ── 底部栏 ──
+function updateBottomBar() {
+  var dates = getWeekDates(currentWeek);
+  var today = new Date();
+  var weekCourses = courseData.filter(function(c) {
+    return currentWeek >= c.startWeek && currentWeek <= c.endWeek;
+  });
+  var nowMinutes = today.getHours()*60 + today.getMinutes();
+
+  // Find next class
+  var nextClass = null;
+  var allCourses = [];
+  for (var i = 0; i < weekCourses.length; i++) {
+    var c = weekCourses[i];
+    allCourses.push({
+      course: c,
+      dayDate: dates[c.day-1],
+      startMin: PERIODS[Math.floor((c.sections[0]-1)/2)].startMin
+    });
+  }
+  allCourses.sort(function(a,b) {
+    if (a.dayDate - b.dayDate !== 0) return a.dayDate - b.dayDate;
+    return a.startMin - b.startMin;
+  });
+
+  for (var i = 0; i < allCourses.length; i++) {
+    var a = allCourses[i];
+    var courseTime = new Date(a.dayDate);
+    courseTime.setHours(Math.floor(a.startMin/60), a.startMin%60, 0, 0);
+    if (courseTime > today) {
+      nextClass = a;
+      break;
+    }
+  }
+
+  var info = document.getElementById('bottomBarInfo');
+  if (nextClass) {
+    var dayName = DAY_NAMES[nextClass.dayDate.getDay()];
+    info.textContent = dayName+' '+formatFull(nextClass.dayDate)+' · '+nextClass.course.name+' · '+nextClass.course.location+' · '+nextClass.course.period+'节';
+  } else {
+    info.textContent = '本学期课程已结束';
+  }
+}
+
+// ── 当前时间红线 ──
+function scheduleTimeIndicator() {
+  // Remove existing
+  var old = document.getElementById('timeIndicator');
+  if (old) old.remove();
+
+  var today = new Date();
+  var dates = getWeekDates(currentWeek);
+  var todayCol = -1;
+  for (var d = 0; d < 7; d++) {
+    if (isSameDay(dates[d], today)) { todayCol = d; break; }
+  }
+  if (todayCol < 0) return;
+
+  var nowMinutes = today.getHours()*60 + today.getMinutes();
+  var totalPeriodStart = PERIODS[0].startMin;
+  var totalPeriodEnd = PERIODS[PERIODS.length-1].endMin;
+  if (nowMinutes < totalPeriodStart || nowMinutes > totalPeriodEnd) return;
+
+  // Calculate position
+  var gridEl = document.getElementById('scheduleGrid');
+  var gridRect = gridEl.getBoundingClientRect();
+  var cells = gridEl.querySelectorAll('.grid-cell, .period-label, .empty-cell, .weekend-msg');
+  // Find the today column cells
+  // We need to find the position in the grid
+  // Actually, let's use a simpler approach: find the position based on periods
+
+  var totalRange = totalPeriodEnd - totalPeriodStart;
+  var elapsed = nowMinutes - totalPeriodStart;
+  var ratio = elapsed / totalRange;
+
+  // Count rows: 4 periods + lunch break row = 5 rows
+  var rowCount = 5;
+  // Each period row is roughly equal height
+  var lunchRatio = 0.04; // lunch break is ~4% of total height
+  var periodRatio = (1 - lunchRatio) / 4;
+
+  var topPct = 0;
+  var periodIdx = -1;
+  for (var p = 0; p < PERIODS.length; p++) {
+    if (nowMinutes >= PERIODS[p].startMin && nowMinutes <= PERIODS[p].endMin) {
+      periodIdx = p;
+      var inPeriodRatio = (nowMinutes - PERIODS[p].startMin) / (PERIODS[p].endMin - PERIODS[p].startMin);
+      topPct = (p * periodRatio + inPeriodRatio * periodRatio) * 100;
+      break;
+    }
+  }
+
+  if (periodIdx < 0) {
+    // Between periods
+    for (var p = 0; p < PERIODS.length-1; p++) {
+      if (nowMinutes > PERIODS[p].endMin && nowMinutes < PERIODS[p+1].startMin) {
+        topPct = ((p+1) * periodRatio) * 100;
+        break;
+      }
+    }
+  }
+
+  if (topPct === 0 && nowMinutes < PERIODS[0].startMin) topPct = 0;
+  if (nowMinutes > PERIODS[PERIODS.length-1].endMin) topPct = 100;
+
+  var indicator = document.createElement('div');
+  indicator.id = 'timeIndicator';
+  indicator.className = 'time-indicator';
+  indicator.style.top = topPct + '%';
+
+  var label = document.createElement('span');
+  label.className = 'time-indicator-label';
+  label.textContent = '现在 '+String(today.getHours()).padStart(2,'0')+':'+String(today.getMinutes()).padStart(2,'0');
+  indicator.appendChild(label);
+
+  document.getElementById('scheduleGridWrapper').appendChild(indicator);
+}
+
+// ── 周次切换 ──
+function selectWeek(w) {
+  currentWeek = w;
+  document.getElementById('weekDropdown').classList.remove('show');
+  renderAll();
+}
+
+function toggleWeekDropdown() {
+  document.getElementById('weekDropdown').classList.toggle('show');
+}
+
+function goToCurrentWeek() {
+  currentWeek = getNowWeek();
+  renderAll();
+}
+
+// ── 底部 Sheet ──
+function openSheet(e, name, teacher, location, period, time, startWeek, endWeek) {
+  e.stopPropagation();
+  var content = document.getElementById('sheetContent');
+  var weekRange = startWeek === endWeek ? '第'+startWeek+'周' : '第'+startWeek+'-'+endWeek+'周';
+  content.innerHTML =
+    '<div class="sheet-course-name">'+name+'</div>'+
+    '<div class="sheet-row"><span class="sheet-row-label">教师</span>'+teacher+'</div>'+
+    '<div class="sheet-row"><span class="sheet-row-label">教室</span>'+location+'</div>'+
+    '<div class="sheet-row"><span class="sheet-row-label">节次</span>'+period+'节 '+time+'</div>'+
+    '<div class="sheet-row"><span class="sheet-row-label">周次</span>'+weekRange+'</div>';
+  document.getElementById('sheetOverlay').classList.add('show');
+  document.getElementById('sheetPanel').classList.add('show');
+}
+
+function closeSheet() {
+  document.getElementById('sheetOverlay').classList.remove('show');
+  document.getElementById('sheetPanel').classList.remove('show');
+}
+
+function scrollToNextClass() {
+  // Scroll to next class - simple: scroll to today's column
+  var today = new Date();
+  var dates = getWeekDates(currentWeek);
+  for (var d = 0; d < 7; d++) {
+    if (isSameDay(dates[d], today)) {
+      var cells = document.querySelectorAll('.grid-cell.today-col');
+      if (cells.length > 0) {
+        cells[0].scrollIntoView({behavior:'smooth',block:'center'});
+      }
+      break;
+    }
+  }
+}
+
+// ── 滑动手势 ──
+var touchStartX = 0;
+var touchStartY = 0;
+document.addEventListener('touchstart', function(e) {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, {passive:true});
+
+document.addEventListener('touchend', function(e) {
+  var dx = e.changedTouches[0].clientX - touchStartX;
+  var dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
+    if (dx > 0 && currentWeek > 1) {
+      // Swipe right: previous week
+      currentWeek--;
+      if (currentWeek === 8) currentWeek = 7;
+    } else if (dx < 0 && currentWeek < TOTAL_WEEKS) {
+      // Swipe left: next week
+      currentWeek++;
+      if (currentWeek === 9) currentWeek = 10;
+    }
+    renderAll();
+  }
+}, {passive:true});
+
+// ── 点击外部关闭下拉 ──
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('weekDropdown');
+  var chip = document.getElementById('weekChip');
+  if (!dd.contains(e.target) && !chip.contains(e.target)) {
+    dd.classList.remove('show');
+  }
+});
+
+// ── 刷新 ──
+function refreshData() {
+  loadWeek(currentWeek);
 }
 
 // ── 主加载 ──
 async function loadWeek(weekNum) {
-  updateStatus('同步中...', false);
   var live = await fetchWeekData(weekNum);
   if (live.courses.length > 0) {
     courseData = live.courses;
     dataSource = 'live';
-    updateStatus('已同步 · ' + live.ok + '/' + live.total + ' 天', true);
-  } else {
-    courseData = [{"name": "操作系统", "day": 1, "startWeek": 1, "endWeek": 8, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-530", "teacher": "叶云青"}, {"name": "算法设计与分析", "day": 1, "startWeek": 1, "endWeek": 8, "sections": [5, 6], "period": "5-6", "time": "14:00-15:40", "location": "31-215", "teacher": "邓志刚"}, {"name": "操作系统", "day": 2, "startWeek": 1, "endWeek": 8, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-530", "teacher": "叶云青"}, {"name": "软件项目管理", "day": 2, "startWeek": 1, "endWeek": 8, "sections": [5, 6], "period": "5-6", "time": "14:00-15:40", "location": "31-522", "teacher": "丁琼"}, {"name": "前端框架技术", "day": 2, "startWeek": 1, "endWeek": 8, "sections": [7, 8], "period": "7-8", "time": "16:10-17:50", "location": "31-220", "teacher": "万畅"}, {"name": "前端框架技术", "day": 3, "startWeek": 1, "endWeek": 8, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-204", "teacher": "万畅"}, {"name": "软件项目管理", "day": 3, "startWeek": 1, "endWeek": 8, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-522", "teacher": "丁琼"}, {"name": "大数据技术基础(B)", "day": 3, "startWeek": 1, "endWeek": 8, "sections": [7, 8], "period": "7-8", "time": "16:10-17:50", "location": "31-519", "teacher": "王辉"}, {"name": "操作系统", "day": 4, "startWeek": 1, "endWeek": 8, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-530", "teacher": "叶云青"}, {"name": "软件项目管理", "day": 5, "startWeek": 1, "endWeek": 8, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-522", "teacher": "丁琼"}, {"name": "算法设计与分析", "day": 5, "startWeek": 1, "endWeek": 8, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "南图301", "teacher": "邓志刚"}, {"name": "大数据技术基础(B)", "day": 5, "startWeek": 1, "endWeek": 8, "sections": [7, 8], "period": "7-8", "time": "16:10-17:50", "location": "31-519", "teacher": "王辉"}, {"name": "形势与政策Ⅴ", "day": 4, "startWeek": 5, "endWeek": 8, "sections": [5, 6], "period": "5-6", "time": "14:00-15:40", "location": "31-219", "teacher": "肖泽伟"}, {"name": "JAVA Web框架技术", "day": 1, "startWeek": 10, "endWeek": 17, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-528", "teacher": "汪斌"}, {"name": "面向对象分析与设计", "day": 1, "startWeek": 10, "endWeek": 17, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-205", "teacher": "企业教师6"}, {"name": "人工智能基础", "day": 2, "startWeek": 10, "endWeek": 17, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-409", "teacher": "邬昌兴"}, {"name": "数据库应用技术", "day": 2, "startWeek": 10, "endWeek": 17, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-205", "teacher": "企业教师1"}, {"name": "面向对象分析与设计", "day": 4, "startWeek": 10, "endWeek": 17, "sections": [1, 2], "period": "1-2", "time": "08:00-09:40", "location": "31-205", "teacher": "企业教师6"}, {"name": "JAVA Web框架技术", "day": 4, "startWeek": 10, "endWeek": 17, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-528", "teacher": "汪斌"}, {"name": "人工智能基础", "day": 5, "startWeek": 10, "endWeek": 17, "sections": [3, 4], "period": "3-4", "time": "10:10-11:50", "location": "31-409", "teacher": "邬昌兴"}, {"name": "数据库应用技术", "day": 5, "startWeek": 10, "endWeek": 17, "sections": [5, 6], "period": "5-6", "time": "14:00-15:40", "location": "31-216", "teacher": "企业教师1"}];
-    dataSource = 'fallback';
-    updateStatus('使用本地数据', false);
   }
   renderAll();
 }
@@ -779,10 +1055,11 @@ async function loadWeek(weekNum) {
 currentWeek = getNowWeek();
 loadWeek(currentWeek);
 
-// ── 刷新按钮 ──
-document.getElementById('refreshBtn').onclick = function() {
-  loadWeek(currentWeek);
-};
+// 每分钟更新当前时间红线
+setInterval(function() {
+  scheduleTimeIndicator();
+  updateBottomBar();
+}, 60000);
 </script>
 </body>
 </html>
