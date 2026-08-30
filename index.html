@@ -335,7 +335,6 @@
       background: #FAFAFA;
       border-bottom: 1px solid var(--divider);
       border-right: 1px solid var(--divider);
-      grid-column: span 2;
     }
     .weekend-msg-inner {
       text-align: center;
@@ -761,9 +760,10 @@ function renderScheduleGrid() {
   }
 
   var html = '';
+  var weekendAdded = false;
   for (var p = 0; p < PERIODS.length; p++) {
     var period = PERIODS[p];
-    html += '<div class="period-label">';
+    html += '<div class="period-label" style="grid-column:1">';
     html += '<span class="period-num">'+period.label+'</span>';
     html += '<span class="period-time">'+period.time+'</span>';
     html += '</div>';
@@ -771,13 +771,14 @@ function renderScheduleGrid() {
     for (var d = 0; d < 7; d++) {
       var dt = dates[d];
       var day = d + 1;
+      var col = d + 2; // grid column: 2=Mon, 3=Tue, ..., 8=Sun
       var isToday = isSameDay(dt, today);
       var isWeekend = (dt.getDay()===0 || dt.getDay()===6);
 
       if (isWeekend) {
-        // Only show weekend message once per day column
-        if (p === 0) {
-          html += '<div class="weekend-msg" style="grid-row: span '+PERIODS.length+'">';
+        if (p === 0 && !weekendAdded) {
+          weekendAdded = true;
+          html += '<div class="weekend-msg" style="grid-column:'+col+' / span 2;grid-row:1 / span '+PERIODS.length+'">';
           html += '<div class="weekend-msg-inner">周末</div>';
           html += '</div>';
         }
@@ -795,7 +796,7 @@ function renderScheduleGrid() {
       if (isToday) cls += ' today-col';
       if (isToday && p === currentPeriodIdx) cls += ' current-period';
 
-      html += '<div class="'+cls+'">';
+      html += '<div class="'+cls+'" style="grid-column:'+col+'">';
       for (var ci = 0; ci < cellCourses.length; ci++) {
         var c = cellCourses[ci];
         var ci2 = getColorIndex(c.name);
@@ -816,14 +817,14 @@ function renderScheduleGrid() {
 
     // Lunch break after 3-4节
     if (p === 1) {
-      html += '<div class="period-label" style="min-height:20px;font-size:9px;color:var(--text-secondary);border-bottom:1px dashed var(--divider)">';
+      html += '<div class="period-label" style="grid-column:1;min-height:20px;font-size:9px;color:var(--text-secondary);border-bottom:1px dashed var(--divider)">';
       html += '午休';
       html += '</div>';
       for (var d2 = 0; d2 < 7; d2++) {
         var dt2 = dates[d2];
         var isWE2 = (dt2.getDay()===0 || dt2.getDay()===6);
         if (isWE2) continue;
-        html += '<div class="empty-cell" style="min-height:20px;border-bottom:1px dashed var(--divider)"></div>';
+        html += '<div class="empty-cell" style="grid-column:'+(d2+2)+';min-height:20px;border-bottom:1px dashed var(--divider)"></div>';
       }
     }
   }
