@@ -87,6 +87,24 @@
     }
     .refresh-btn:active { background: var(--bg); transform: rotate(90deg); }
 
+    .install-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      color: #fff;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .install-btn.show { display: flex; }
+    .install-btn:active { opacity: 0.8; transform: scale(0.95); }
+
     /* ── 周次选择器 ── */
     .week-pills {
       display: flex;
@@ -393,6 +411,7 @@
         <div class="header-status" id="headerStatus">可浏览各周课表</div>
       </div>
       <button class="refresh-btn" onclick="refreshData()" title="刷新数据">⟳</button>
+      <button class="install-btn" id="installBtn" onclick="installPWA()" title="添加到桌面">＋</button>
     </div>
     <div class="week-pills" id="weekPills"></div>
   </div>
@@ -438,6 +457,24 @@
             }
           });
         });
+      });
+    }
+
+    // PWA 安装
+    var deferredPrompt;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBtn').classList.add('show');
+    });
+    function installPWA() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(result) {
+        if (result.outcome === 'accepted') {
+          document.getElementById('installBtn').classList.remove('show');
+        }
+        deferredPrompt = null;
       });
     }
 
