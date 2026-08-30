@@ -131,98 +131,150 @@
       color: white;
     }
 
-    /* ── 课表网格 ── */
+    /* ── 课表：桌面端网格 ── */
     .schedule-wrap {
-      padding: 0 16px 16px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      padding: 0 12px 16px;
     }
-    .schedule-table {
-      display: grid;
-      grid-template-columns: 52px repeat(5, 1fr);
-      min-width: 640px;
-      border-radius: var(--radius);
+    .schedule-grid {
+      display: none;
+    }
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 日卡片 */
+    .day-card {
       background: var(--card);
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow: hidden;
     }
-    .schedule-table .col-head {
-      padding: 10px 4px;
-      text-align: center;
-      font-size: 12px;
+    .day-card-header {
+      padding: 10px 14px;
+      font-size: 14px;
       font-weight: 600;
-      color: var(--sub);
-      border-bottom: 1px solid var(--border);
-      background: #fafafa;
-      letter-spacing: 0.5px;
-    }
-    .schedule-table .col-head:first-child {
-      color: transparent;
-    }
-    .schedule-table .row-label {
-      padding: 8px 4px;
-      text-align: center;
-      font-size: 11px;
-      color: var(--sub);
-      border-right: 1px solid var(--border);
+      color: var(--text);
       border-bottom: 1px solid var(--border);
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 1px;
-      line-height: 1.2;
+      align-items: center;
+      justify-content: space-between;
     }
-    .schedule-table .row-label .period {
-      font-weight: 600;
-      color: #555;
+    .day-card-header .day-date {
       font-size: 12px;
+      font-weight: 400;
+      color: var(--sub);
     }
-    .schedule-table .cell {
-      border-bottom: 1px solid #f0f0f5;
-      border-right: 1px solid #f0f0f5;
-      padding: 4px;
-      min-height: 62px;
-      position: relative;
+    .day-card-header.today {
+      background: var(--accent);
+      color: #fff;
+      border-bottom-color: var(--accent);
     }
-    .schedule-table .cell:nth-child(6n) { border-right: none; }
+    .day-card-header.today .day-date { color: rgba(255,255,255,0.8); }
+    .day-card-body {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 40px;
+    }
+    .day-empty {
+      padding: 16px;
+      text-align: center;
+      color: #bbb;
+      font-size: 13px;
+    }
 
     .course-block {
       background: #e8f0fe;
-      border-radius: 6px;
-      padding: 6px 8px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      border-radius: 8px;
+      padding: 10px 12px;
       cursor: default;
       transition: transform 0.15s;
-      border-left: 3px solid transparent;
+      border-left: 4px solid transparent;
       position: relative;
-      overflow: hidden;
     }
     .course-block:active { transform: scale(0.98); }
     .course-block .c-name {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
       color: var(--text);
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      line-height: 1.4;
     }
     .course-block .c-meta {
-      font-size: 10px;
+      font-size: 12px;
       color: #666;
-      margin-top: 2px;
-      line-height: 1.3;
+      margin-top: 3px;
+      line-height: 1.4;
     }
     .course-block .c-loc {
-      font-size: 10px;
+      font-size: 11px;
       color: #888;
+      margin-top: 2px;
       display: flex;
       align-items: center;
-      gap: 2px;
+      gap: 4px;
+    }
+
+    /* ── 桌面端：≥640px 显示网格 ── */
+    @media (min-width: 640px) {
+      .schedule-list { display: none; }
+      .schedule-grid {
+        display: grid;
+        grid-template-columns: 52px repeat(5, 1fr);
+        border-radius: var(--radius);
+        background: var(--card);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .schedule-grid .col-head {
+        padding: 10px 4px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--sub);
+        border-bottom: 1px solid var(--border);
+        background: #fafafa;
+        letter-spacing: 0.5px;
+      }
+      .schedule-grid .col-head:first-child {
+        color: transparent;
+      }
+      .schedule-grid .row-label {
+        padding: 8px 4px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--sub);
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1px;
+        line-height: 1.2;
+      }
+      .schedule-grid .row-label .period {
+        font-weight: 600;
+        color: #555;
+        font-size: 12px;
+      }
+      .schedule-grid .cell {
+        border-bottom: 1px solid #f0f0f5;
+        border-right: 1px solid #f0f0f5;
+        padding: 4px;
+        min-height: 62px;
+        position: relative;
+      }
+      .schedule-grid .cell:nth-child(6n) { border-right: none; }
+      .course-block {
+        padding: 6px 8px;
+        border-radius: 6px;
+        border-left-width: 3px;
+      }
+      .course-block .c-name { font-size: 13px; }
+      .course-block .c-meta { font-size: 10px; }
+      .course-block .c-loc { font-size: 10px; }
     }
 
     /* ── 课程颜色 ── */
@@ -275,17 +327,7 @@
     }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    /* ── 响应式 ── */
-    @media (max-width: 480px) {
-      .schedule-table { grid-template-columns: 44px repeat(5, 1fr); min-width: 520px; }
-      .course-block .c-name { font-size: 11px; }
-      .course-block .c-meta { font-size: 9px; }
-      .course-block .c-loc { font-size: 9px; }
-      .schedule-table .cell { min-height: 52px; }
-      .schedule-table .row-label { font-size: 10px; }
-      .schedule-table .row-label .period { font-size: 11px; }
-    }
-  </style>
+    </style>
 </head>
 <body>
   <div class="topbar">
@@ -304,7 +346,8 @@
   <div class="week-bar" id="weekBar"></div>
 
   <div class="schedule-wrap">
-    <div class="schedule-table" id="scheduleTable"></div>
+    <div class="schedule-grid" id="scheduleGrid"></div>
+    <div class="schedule-list" id="scheduleList"></div>
   </div>
 
   <div class="notice-bar" id="noticeBar">
@@ -466,30 +509,37 @@ function renderWeekBar() {
   }
 }
 
+function renderCourseBlock(c) {
+  var cls = getCourseClass(c.name);
+  return '<div class="course-block ' + cls + '">' +
+    '<div class="c-name">' + c.name + '</div>' +
+    '<div class="c-meta">' + c.period + '节 ' + (c.time||'') + '</div>' +
+    '<div class="c-loc">' + (c.location||'') + ' ' + (c.teacher||'') + '</div>' +
+    '</div>';
+}
+
 function renderSchedule() {
-  var table = document.getElementById('scheduleTable');
   var dates = getWeekDates(currentWeek);
   var weekCourses = courseData.filter(function(c) {
     return currentWeek >= c.startWeek && currentWeek <= c.endWeek;
   });
+  var today = new Date();
 
-  // 表头
-  var html = '<div class="col-head"></div>';
+  // ── 桌面端网格 ──
+  var grid = document.getElementById('scheduleGrid');
+  var ghtml = '<div class="col-head"></div>';
   for (var d = 1; d <= 5; d++) {
     var dt = dates[d-1];
     var wd = DAY_NAMES[dt.getDay()];
-    var today = new Date();
     var isToday = (dt.getFullYear() === today.getFullYear() &&
                    dt.getMonth() === today.getMonth() &&
                    dt.getDate() === today.getDate());
     var style = isToday ? 'color:#1a73e8;font-weight:700' : '';
-    html += '<div class="col-head" style="' + style + '">' + wd + '<br><span style="font-size:10px;font-weight:400">' + formatDate(dt) + '</span></div>';
+    ghtml += '<div class="col-head" style="' + style + '">' + wd + '<br><span style="font-size:10px;font-weight:400">' + formatDate(dt) + '</span></div>';
   }
-
-  // 行
   for (var p = 0; p < 4; p++) {
     var period = PERIODS[p];
-    html += '<div class="row-label"><span class="period">' + period.label + '</span>' + period.time + '</div>';
+    ghtml += '<div class="row-label"><span class="period">' + period.label + '</span>' + period.time + '</div>';
     for (var d = 1; d <= 5; d++) {
       var cellCourses = weekCourses.filter(function(c) {
         if (c.day !== d) return false;
@@ -497,21 +547,44 @@ function renderSchedule() {
         var pEnd = p * 2 + 2;
         return c.sections[0] <= pEnd && c.sections[c.sections.length-1] >= pStart;
       });
-      html += '<div class="cell">';
+      ghtml += '<div class="cell">';
       for (var ci = 0; ci < cellCourses.length; ci++) {
-        var c = cellCourses[ci];
-        var cls = getCourseClass(c.name);
-        html += '<div class="course-block ' + cls + '">';
-        html += '<div class="c-name">' + c.name + '</div>';
-        html += '<div class="c-meta">' + c.period + '节 ' + (c.time||'') + '</div>';
-        html += '<div class="c-loc">' + (c.location||'') + ' ' + (c.teacher||'') + '</div>';
-        html += '</div>';
+        ghtml += renderCourseBlock(cellCourses[ci]);
       }
-      html += '</div>';
+      ghtml += '</div>';
     }
   }
+  grid.innerHTML = ghtml;
 
-  table.innerHTML = html;
+  // ── 手机端列表 ──
+  var list = document.getElementById('scheduleList');
+  var lhtml = '';
+  for (var d = 1; d <= 5; d++) {
+    var dt2 = dates[d-1];
+    var wd2 = DAY_NAMES[dt2.getDay()];
+    var isToday2 = (dt2.getFullYear() === today.getFullYear() &&
+                    dt2.getMonth() === today.getMonth() &&
+                    dt2.getDate() === today.getDate());
+    var dayCourses = weekCourses.filter(function(c) { return c.day === d; });
+    // 按节次排序
+    dayCourses.sort(function(a,b) { return a.sections[0] - b.sections[0]; });
+
+    lhtml += '<div class="day-card">';
+    lhtml += '<div class="day-card-header' + (isToday2 ? ' today' : '') + '">';
+    lhtml += '<span>' + wd2 + '</span>';
+    lhtml += '<span class="day-date">' + formatDate(dt2) + '</span>';
+    lhtml += '</div>';
+    lhtml += '<div class="day-card-body">';
+    if (dayCourses.length === 0) {
+      lhtml += '<div class="day-empty">这天没有课 🎉</div>';
+    } else {
+      for (var ci = 0; ci < dayCourses.length; ci++) {
+        lhtml += renderCourseBlock(dayCourses[ci]);
+      }
+    }
+    lhtml += '</div></div>';
+  }
+  list.innerHTML = lhtml;
 }
 
 // ── 状态更新 ──
