@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#1a73e8">
+  <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>华东交通大学课程表</title>
@@ -12,15 +12,20 @@
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <style>
     :root {
-      --bg: #f0f2f5;
+      --bg: #f5f6fa;
       --card: #ffffff;
-      --text: #1d1d1f;
-      --sub: #86868b;
-      --accent: #1a73e8;
-      --border: #e5e5ea;
-      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-      --radius: 14px;
-      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --text: #1a1a2e;
+      --sub: #7c7c8a;
+      --accent: #4f6ef7;
+      --accent-light: #eef1ff;
+      --border: #e8e9f0;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --radius-sm: 10px;
+      --radius: 16px;
+      --radius-lg: 20px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -37,129 +42,164 @@
 
     /* ── 顶部栏 ── */
     .topbar {
-      background: var(--card);
-      padding: 12px 16px;
-      padding-top: max(12px, env(safe-area-inset-top));
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      padding: 16px 20px;
+      padding-top: max(16px, env(safe-area-inset-top));
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 30;
     }
     .topbar-brand {
       display: flex;
       flex-direction: column;
+      gap: 4px;
     }
     .topbar-title {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      color: var(--text);
+      color: #fff;
       letter-spacing: -0.3px;
     }
     .topbar-sub {
-      font-size: 11px;
-      color: var(--sub);
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
+      font-weight: 400;
     }
     .topbar-sub .dot {
-      width: 6px; height: 6px;
+      width: 7px; height: 7px;
       border-radius: 50%;
-      background: #34c759;
+      background: #4ade80;
       display: inline-block;
+      box-shadow: 0 0 6px rgba(74,222,128,0.5);
     }
-    .topbar-sub .dot.off { background: #ff3b30; }
+    .topbar-sub .dot.off { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.5); }
     .topbar-actions {
       display: flex;
-      gap: 8px;
+      gap: 10px;
     }
     .icon-btn {
-      width: 36px; height: 36px;
-      border-radius: 50%;
+      width: 38px; height: 38px;
+      border-radius: 12px;
       border: none;
-      background: #f5f5f7;
+      background: rgba(255,255,255,0.1);
       font-size: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: #555;
-      transition: background 0.15s;
+      color: rgba(255,255,255,0.8);
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
     }
-    .icon-btn:active { background: #e5e5ea; }
+    .icon-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .icon-btn:active { transform: scale(0.95); }
 
     /* ── 周切换 ── */
-    .week-bar {
+    .week-nav {
       display: flex;
       align-items: center;
-      padding: 12px 16px 8px;
-      gap: 6px;
+      padding: 14px 16px 10px;
+      gap: 8px;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 70px;
+      z-index: 20;
     }
-    .week-bar::-webkit-scrollbar { display: none; }
+    .week-nav::-webkit-scrollbar { display: none; }
+    .week-nav-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
     .week-chip {
       flex-shrink: 0;
-      padding: 7px 14px;
+      padding: 7px 16px;
       border-radius: 20px;
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
       background: var(--card);
       font-size: 13px;
       color: var(--text);
       cursor: pointer;
       font-weight: 500;
       white-space: nowrap;
-      transition: all 0.2s;
-      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .week-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
     }
     .week-chip.active {
       background: var(--accent);
       color: white;
       border-color: var(--accent);
       font-weight: 600;
+      box-shadow: 0 2px 8px rgba(79,110,247,0.3);
     }
     .week-chip.today {
       border-color: var(--accent);
       color: var(--accent);
+      background: var(--accent-light);
     }
     .week-chip.today.active {
       background: var(--accent);
       color: white;
     }
+    .week-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+      margin: 0 4px;
+    }
 
-    /* ── 课表：桌面端网格 ── */
+    /* ── 课表容器 ── */
     .schedule-wrap {
-      padding: 0 12px 16px;
+      padding: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    .schedule-grid {
-      display: none;
-    }
+
+    /* ── 手机端列表（默认显示） ── */
     .schedule-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
-    /* 日卡片 */
     .day-card {
       background: var(--card);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-md);
       overflow: hidden;
+      transition: box-shadow 0.2s;
     }
+    .day-card:hover { box-shadow: var(--shadow-lg); }
     .day-card-header {
-      padding: 10px 14px;
-      font-size: 14px;
+      padding: 13px 16px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--text);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: #fafbfc;
     }
     .day-card-header .day-date {
       font-size: 12px;
@@ -167,82 +207,137 @@
       color: var(--sub);
     }
     .day-card-header.today {
-      background: var(--accent);
+      background: linear-gradient(135deg, #4f6ef7, #6c8cff);
       color: #fff;
-      border-bottom-color: var(--accent);
+      border-bottom-color: transparent;
     }
     .day-card-header.today .day-date { color: rgba(255,255,255,0.8); }
     .day-card-body {
-      padding: 8px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      min-height: 40px;
+      gap: 8px;
+      min-height: 44px;
     }
     .day-empty {
-      padding: 16px;
+      padding: 20px;
       text-align: center;
-      color: #bbb;
+      color: #c0c0c8;
       font-size: 13px;
     }
 
+    /* ── 课程卡片 ── */
     .course-block {
-      background: #e8f0fe;
-      border-radius: 8px;
-      padding: 10px 12px;
+      border-radius: 12px;
+      padding: 12px 14px;
       cursor: default;
-      transition: transform 0.15s;
+      transition: all 0.2s ease;
       border-left: 4px solid transparent;
       position: relative;
+      overflow: hidden;
     }
-    .course-block:active { transform: scale(0.98); }
+    .course-block::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      opacity: 0.03;
+      background: linear-gradient(135deg, #000 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .course-block:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .course-block:active { transform: scale(0.985); }
     .course-block .c-name {
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text);
       line-height: 1.4;
+      letter-spacing: -0.2px;
     }
     .course-block .c-meta {
       font-size: 12px;
-      color: #666;
-      margin-top: 3px;
+      color: #555;
+      margin-top: 4px;
       line-height: 1.4;
+      font-weight: 500;
     }
     .course-block .c-loc {
       font-size: 11px;
-      color: #888;
-      margin-top: 2px;
+      color: #777;
+      margin-top: 3px;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .course-block .c-loc .c-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(0,0,0,0.06);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 500;
     }
 
-    /* ── 桌面端：≥640px 显示网格 ── */
-    @media (min-width: 640px) {
+    /* ── 桌面端网格（≥768px） ── */
+    @media (min-width: 768px) {
       .schedule-list { display: none; }
+      .schedule-wrap {
+        padding: 20px 24px;
+      }
       .schedule-grid {
         display: grid;
-        grid-template-columns: 52px repeat(5, 1fr);
-        border-radius: var(--radius);
+        grid-template-columns: 70px repeat(5, 1fr);
+        border-radius: var(--radius-lg);
         background: var(--card);
-        box-shadow: var(--shadow);
+        box-shadow: var(--shadow-lg);
         overflow: hidden;
+        border: 1px solid var(--border);
       }
+
+      /* 列头 */
       .schedule-grid .col-head {
-        padding: 10px 4px;
+        padding: 14px 8px;
         text-align: center;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 600;
         color: var(--sub);
+        background: #fafbfc;
         border-bottom: 1px solid var(--border);
-        background: #fafafa;
         letter-spacing: 0.5px;
+        text-transform: uppercase;
       }
       .schedule-grid .col-head:first-child {
         color: transparent;
+        user-select: none;
       }
+      .col-head .col-date {
+        font-size: 11px;
+        font-weight: 400;
+        color: #999;
+        display: block;
+        margin-top: 2px;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+      /* 今天列头高亮 */
+      .col-head.today-head {
+        background: linear-gradient(180deg, #eef1ff 0%, #fafbfc 100%);
+        color: var(--accent) !important;
+        font-weight: 700;
+      }
+      .col-head.today-head .col-date {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      /* 行标签（时间列） */
       .schedule-grid .row-label {
-        padding: 8px 4px;
+        padding: 10px 6px;
         text-align: center;
         font-size: 11px;
         color: var(--sub);
@@ -251,83 +346,134 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 1px;
-        line-height: 1.2;
+        gap: 2px;
+        line-height: 1.3;
+        background: #fafbfc;
+        font-weight: 500;
       }
       .schedule-grid .row-label .period {
-        font-weight: 600;
-        color: #555;
-        font-size: 12px;
+        font-weight: 700;
+        color: #444;
+        font-size: 13px;
       }
+
+      /* 单元格 */
       .schedule-grid .cell {
-        border-bottom: 1px solid #f0f0f5;
-        border-right: 1px solid #f0f0f5;
-        padding: 4px;
-        min-height: 62px;
+        border-bottom: 1px solid #f0f0f6;
+        border-right: 1px solid #f0f0f6;
+        padding: 6px;
+        min-height: 80px;
         position: relative;
+        transition: background 0.15s;
+      }
+      .schedule-grid .cell:hover {
+        background: #fafbfd;
       }
       .schedule-grid .cell:nth-child(6n) { border-right: none; }
+      /* 今天列 */
+      .cell.today-col {
+        background: rgba(79,110,247,0.02);
+      }
+
       .course-block {
-        padding: 6px 8px;
-        border-radius: 6px;
+        padding: 8px 10px;
+        border-radius: 10px;
         border-left-width: 3px;
       }
-      .course-block .c-name { font-size: 13px; }
-      .course-block .c-meta { font-size: 10px; }
-      .course-block .c-loc { font-size: 10px; }
+      .course-block .c-name { font-size: 12.5px; }
+      .course-block .c-meta { font-size: 10px; margin-top: 2px; }
+      .course-block .c-loc { font-size: 10px; margin-top: 2px; }
+      .course-block .c-loc .c-tag { font-size: 9px; padding: 1px 6px; }
     }
 
-    /* ── 课程颜色 ── */
-    .c-操作系统      { background: #e8f5e9; border-left-color: #4caf50; }
-    .c-算法设计与分析 { background: #fce4ec; border-left-color: #e91e63; }
-    .c-软件项目管理   { background: #e3f2fd; border-left-color: #2196f3; }
-    .c-前端框架技术   { background: #fff3e0; border-left-color: #ff9800; }
-    .c-大数据技术基础 { background: #f3e5f5; border-left-color: #9c27b0; }
-    .c-形势与政策     { background: #fffde7; border-left-color: #fbc02d; }
-    .c-JAVA           { background: #e0f7fa; border-left-color: #00bcd4; }
-    .c-面向对象分析与设计 { background: #fbe9e7; border-left-color: #ff5722; }
-    .c-人工智能基础   { background: #e8eaf6; border-left-color: #3f51b5; }
-    .c-数据库应用技术 { background: #e0f2f1; border-left-color: #009688; }
-
-    .c-name-os { color: #2e7d32; }
-    .c-name-algo { color: #c62828; }
-    .c-name-pm { color: #1565c0; }
-    .c-name-fe { color: #e65100; }
-    .c-name-bd { color: #6a1b9a; }
-    .c-name-policy { color: #f57f17; }
-    .c-name-java { color: #00838f; }
-    .c-name-oo { color: #bf360c; }
-    .c-name-ai { color: #283593; }
-    .c-name-db { color: #00695c; }
+    /* ── 课程颜色系统 ── */
+    .c-操作系统      { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left-color: #43a047; }
+    .c-算法设计与分析 { background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); border-left-color: #e53935; }
+    .c-软件项目管理   { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left-color: #1e88e5; }
+    .c-前端框架技术   { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left-color: #fb8c00; }
+    .c-大数据技术基础 { background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border-left-color: #8e24aa; }
+    .c-形势与政策     { background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%); border-left-color: #f9a825; }
+    .c-JAVA           { background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%); border-left-color: #00acc1; }
+    .c-面向对象分析与设计 { background: linear-gradient(135deg, #fbe9e7 0%, #ffccbc 100%); border-left-color: #f4511e; }
+    .c-人工智能基础   { background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%); border-left-color: #3949ab; }
+    .c-数据库应用技术 { background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); border-left-color: #00897b; }
 
     /* ── 底部提示 ── */
     .notice-bar {
-      padding: 0 16px 20px;
+      padding: 12px 24px 24px;
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 12px;
       color: var(--sub);
       justify-content: center;
+      max-width: 1200px;
+      margin: 0 auto;
     }
     .notice-dot {
       width: 8px; height: 8px;
       border-radius: 50%;
-      background: #34c759;
+      background: #4ade80;
+      box-shadow: 0 0 6px rgba(74,222,128,0.4);
     }
-    .notice-dot.syncing { background: #ff9500; animation: pulse 1s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .notice-dot.syncing { background: #f59e0b; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
     /* ── 加载空态 ── */
     .skeleton {
       animation: shimmer 1.5s infinite;
       background: linear-gradient(90deg, #f0f0f5 25%, #e5e5ea 50%, #f0f0f5 75%);
       background-size: 200% 100%;
-      border-radius: 6px;
+      border-radius: 8px;
     }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    </style>
+    /* ── 响应式断点：平板竖屏 ── */
+    @media (min-width: 640px) and (max-width: 767px) {
+      .schedule-list { display: none; }
+      .schedule-wrap { padding: 12px; }
+      .schedule-grid {
+        display: grid;
+        grid-template-columns: 55px repeat(5, 1fr);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+      .schedule-grid .col-head {
+        padding: 10px 4px;
+        font-size: 11px;
+        background: #fafbfc;
+        border-bottom: 1px solid var(--border);
+      }
+      .schedule-grid .col-head:first-child { color: transparent; }
+      .col-head .col-date { font-size: 9px; }
+      .schedule-grid .row-label {
+        padding: 6px 3px;
+        font-size: 10px;
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        background: #fafbfc;
+      }
+      .schedule-grid .row-label .period { font-size: 11px; }
+      .schedule-grid .cell {
+        padding: 3px;
+        min-height: 60px;
+        border-bottom: 1px solid #f0f0f6;
+        border-right: 1px solid #f0f0f6;
+      }
+      .schedule-grid .cell:nth-child(6n) { border-right: none; }
+      .course-block {
+        padding: 4px 6px;
+        border-radius: 6px;
+        border-left-width: 2px;
+      }
+      .course-block .c-name { font-size: 10px; }
+      .course-block .c-meta { font-size: 8px; }
+      .course-block .c-loc { font-size: 8px; }
+    }
+  </style>
 </head>
 <body>
   <div class="topbar">
@@ -339,11 +485,11 @@
       </div>
     </div>
     <div class="topbar-actions">
-      <button class="icon-btn" id="refreshBtn" title="刷新">↻</button>
+      <button class="icon-btn" id="refreshBtn" title="刷新数据">↻</button>
     </div>
   </div>
 
-  <div class="week-bar" id="weekBar"></div>
+  <div class="week-nav" id="weekBar"></div>
 
   <div class="schedule-wrap">
     <div class="schedule-grid" id="scheduleGrid"></div>
@@ -405,6 +551,10 @@ function getWeekDates(weekNum) {
 }
 
 function formatDate(d) {
+  return (d.getMonth()+1) + '/' + d.getDate();
+}
+
+function formatDateFull(d) {
   return (d.getMonth()+1) + '月' + d.getDate() + '日';
 }
 
@@ -413,6 +563,12 @@ function isoDate(d) {
   var m = String(d.getMonth()+1).padStart(2,'0');
   var day = String(d.getDate()).padStart(2,'0');
   return y + '-' + m + '-' + day;
+}
+
+function isSameDay(d1, d2) {
+  return d1.getFullYear() === d2.getFullYear() &&
+         d1.getMonth() === d2.getMonth() &&
+         d1.getDate() === d2.getDate();
 }
 
 // ── 解析教务 HTML ──
@@ -489,9 +645,12 @@ function getCourseClass(name) {
 function renderWeekBar() {
   var bar = document.getElementById('weekBar');
   var now = getNowWeek();
-  var html = '';
+  var html = '<span class="week-nav-label">周次</span>';
   for (var w = 1; w <= TOTAL_WEEKS; w++) {
-    if (w === 9) { html += '<span style="flex-shrink:0;width:8px"></span>'; continue; }
+    if (w === 9) {
+      html += '<span class="week-divider"></span>';
+      continue;
+    }
     var cls = 'week-chip';
     if (w === currentWeek) cls += ' active';
     if (w === now) cls += ' today';
@@ -514,7 +673,10 @@ function renderCourseBlock(c) {
   return '<div class="course-block ' + cls + '">' +
     '<div class="c-name">' + c.name + '</div>' +
     '<div class="c-meta">' + c.period + '节 ' + (c.time||'') + '</div>' +
-    '<div class="c-loc">' + (c.location||'') + ' ' + (c.teacher||'') + '</div>' +
+    '<div class="c-loc">' +
+    (c.location ? '<span class="c-tag">📍 ' + c.location + '</span>' : '') +
+    (c.teacher ? '<span class="c-tag">👤 ' + c.teacher + '</span>' : '') +
+    '</div>' +
     '</div>';
 }
 
@@ -531,23 +693,24 @@ function renderSchedule() {
   for (var d = 1; d <= 5; d++) {
     var dt = dates[d-1];
     var wd = DAY_NAMES[dt.getDay()];
-    var isToday = (dt.getFullYear() === today.getFullYear() &&
-                   dt.getMonth() === today.getMonth() &&
-                   dt.getDate() === today.getDate());
-    var style = isToday ? 'color:#1a73e8;font-weight:700' : '';
-    ghtml += '<div class="col-head" style="' + style + '">' + wd + '<br><span style="font-size:10px;font-weight:400">' + formatDate(dt) + '</span></div>';
+    var isToday = isSameDay(dt, today);
+    var headCls = isToday ? 'col-head today-head' : 'col-head';
+    ghtml += '<div class="' + headCls + '">' + wd + '<span class="col-date">' + formatDate(dt) + '</span></div>';
   }
   for (var p = 0; p < 4; p++) {
     var period = PERIODS[p];
     ghtml += '<div class="row-label"><span class="period">' + period.label + '</span>' + period.time + '</div>';
     for (var d = 1; d <= 5; d++) {
+      var dt = dates[d-1];
+      var isToday = isSameDay(dt, today);
       var cellCourses = weekCourses.filter(function(c) {
         if (c.day !== d) return false;
         var pStart = p * 2 + 1;
         var pEnd = p * 2 + 2;
         return c.sections[0] <= pEnd && c.sections[c.sections.length-1] >= pStart;
       });
-      ghtml += '<div class="cell">';
+      var cellCls = isToday ? 'cell today-col' : 'cell';
+      ghtml += '<div class="' + cellCls + '">';
       for (var ci = 0; ci < cellCourses.length; ci++) {
         ghtml += renderCourseBlock(cellCourses[ci]);
       }
@@ -562,17 +725,14 @@ function renderSchedule() {
   for (var d = 1; d <= 5; d++) {
     var dt2 = dates[d-1];
     var wd2 = DAY_NAMES[dt2.getDay()];
-    var isToday2 = (dt2.getFullYear() === today.getFullYear() &&
-                    dt2.getMonth() === today.getMonth() &&
-                    dt2.getDate() === today.getDate());
+    var isToday2 = isSameDay(dt2, today);
     var dayCourses = weekCourses.filter(function(c) { return c.day === d; });
-    // 按节次排序
     dayCourses.sort(function(a,b) { return a.sections[0] - b.sections[0]; });
 
     lhtml += '<div class="day-card">';
     lhtml += '<div class="day-card-header' + (isToday2 ? ' today' : '') + '">';
     lhtml += '<span>' + wd2 + '</span>';
-    lhtml += '<span class="day-date">' + formatDate(dt2) + '</span>';
+    lhtml += '<span class="day-date">' + formatDateFull(dt2) + '</span>';
     lhtml += '</div>';
     lhtml += '<div class="day-card-body">';
     if (dayCourses.length === 0) {
@@ -619,26 +779,10 @@ async function loadWeek(weekNum) {
 currentWeek = getNowWeek();
 loadWeek(currentWeek);
 
+// ── 刷新按钮 ──
 document.getElementById('refreshBtn').onclick = function() {
-  this.style.transform = 'rotate(180deg)';
-  this.style.transition = 'transform 0.4s';
-  loadWeek(currentWeek).then(function() {
-    document.getElementById('refreshBtn').style.transform = 'rotate(360deg)';
-  });
+  loadWeek(currentWeek);
 };
-
-// 定时刷新
-function scheduleNext() {
-  var now = new Date();
-  var t = new Date(now);
-  t.setDate(t.getDate() + 1);
-  t.setHours(0, 5, 0, 0);
-  setTimeout(function() {
-    loadWeek(currentWeek);
-    scheduleNext();
-  }, t - now);
-}
-scheduleNext();
 </script>
 </body>
 </html>
