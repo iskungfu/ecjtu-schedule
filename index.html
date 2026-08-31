@@ -109,12 +109,6 @@
     .icon-btn:hover { background: var(--paper-2); color: var(--ink); }
     .icon-btn svg { width: 16px; height: 16px; }
     .icon-btn.gear-btn svg { width: 18px; height: 18px; color: var(--accent); }
-    .icon-btn.install-btn { display: none; }
-    .icon-btn.install-btn.show {
-      display: flex;
-      background: var(--accent); color: #fff; border-color: var(--accent);
-      font-size: 16px; font-weight: 600;
-    }
 
     /* ── 主布局 ── */
     .main { flex: 1; display: flex; min-height: 0; }
@@ -756,7 +750,6 @@
         <button class="icon-btn gear-btn" onclick="openThemeSheet()" title="主题色设置">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
-        <button class="icon-btn install-btn" id="installBtn" onclick="installPWA()" title="添加到桌面">＋</button>
       </div>
     </header>
 
@@ -909,7 +902,7 @@
                style="width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:var(--paper);">
         <div id="importFullWrap" style="display:none;font-size:12px;color:var(--ink-soft);">
           <label style="display:flex;align-items:center;gap:6px;padding:2px 0;">
-            <input type="checkbox" id="importFullSemester" checked> 抓取整个学期（逐天请求，需链接可跨域访问）
+            <input type="checkbox" id="importFullSemester" checked> 抓取整个学期（逐天请求，跨域拦截时自动经公共代理）
           </label>
         </div>
         <button class="install-guide-btn" onclick="doImport()" style="margin-top:8px;">立即导入</button>
@@ -962,7 +955,7 @@
   <script>
     // Service Worker 注册（file:// 协议下不支持，直接跳过避免报错）
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-      navigator.serviceWorker.register('./sw.js?v=5').then(function(reg) {
+      navigator.serviceWorker.register('./sw.js?v=6').then(function(reg) {
         reg.addEventListener('updatefound', function() {
           var newWorker = reg.installing;
           newWorker.addEventListener('statechange', function() {
@@ -1265,17 +1258,6 @@
     var isHuawei = isHuaweiBrowser();
     var isOtherInApp = isOtherInAppBrowser();
 
-    // 小米/华为浏览器：始终显示安装按钮
-    if (isXiaomi || isHuawei) {
-      document.getElementById('installBtn').classList.add('show');
-    }
-
-    window.addEventListener('beforeinstallprompt', function(e) {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('installBtn').classList.add('show');
-    });
-
     function installPWA() {
       // 小米浏览器 → 显示引导
       if (isXiaomi) {
@@ -1302,10 +1284,7 @@
       // 其他浏览器 → 使用标准 PWA 安装
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function(result) {
-        if (result.outcome === 'accepted') {
-          document.getElementById('installBtn').classList.remove('show');
-        }
+      deferredPrompt.userChoice.then(function() {
         deferredPrompt = null;
       });
     }
@@ -2011,6 +1990,43 @@
       return jsDayToCode(new Date(+m[1], +m[2] - 1, +m[3]).getDay());
     }
 
+    // ── 跨域自动回退：直连失败后依次尝试公共 CORS 代理 ──
+    var CORS_PROXIES = [
+      { name: '公共代理①', build: function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
+      { name: '公共代理②', build: function(u) { return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
+      { name: '公共代理③', build: function(u) { return 'https://corsproxy.io/?url=' + encodeURIComponent(u); } }
+    ];
+
+    function fetchBody(url) {
+      // 单次请求 12 秒超时，避免代理挂起时导入卡死
+      var ctrl = ('AbortController' in window) ? new AbortController() : null;
+      var timer = ctrl ? setTimeout(function() { ctrl.abort(); }, 12000) : null;
+      return fetch(url, ctrl ? { signal: ctrl.signal } : undefined).then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      }).finally(function() {
+        if (timer) clearTimeout(timer);
+      });
+    }
+
+    // 直连 → 逐个代理回退；返回 { text, viaProxy }
+    function fetchTextFallback(url, onProxyTry) {
+      return fetchBody(url).then(function(t) {
+        return { text: t, viaProxy: false };
+      }).catch(function(directErr) {
+        var i = 0;
+        function tryProxy() {
+          if (i >= CORS_PROXIES.length) throw directErr;
+          var px = CORS_PROXIES[i++];
+          if (onProxyTry) onProxyTry(px.name);
+          return fetchBody(px.build(url)).then(function(t) {
+            return { text: t, viaProxy: true };
+          }).catch(function() { return tryProxy(); });
+        }
+        return tryProxy();
+      });
+    }
+
     function finishImport(courses) {
       if (!courses || !courses.length) { importFailed('没有解析到任何课程'); return; }
       allCourseData = courses;
@@ -2031,12 +2047,12 @@
 
     function showCorsGuide(err) {
       setImportStatus(
-        '❌ 无法直接请求该链接（' + (err && err.message ? err.message : '跨域被拦截') +
-        '）。教务系统不开放跨域访问（CORS）。<br><br>' +
-        '<b>方案 A：</b>在本机启动本地代理（见 README「跨域解决方案」），把代理地址粘到上面重新导入；<br>' +
+        '❌ 无法请求该链接（' + (err && err.message ? err.message : '请求失败') +
+        '）。直连与公共代理均未成功——教务系统不开放跨域访问，公共代理可能被限流。<br><br>' +
+        '<b>方案 A：</b>稍后重试（代理限流通常几分钟后恢复）；<br>' +
         '<b>方案 B：</b>浏览器直接打开该链接，全选复制返回内容，粘贴到下方文本框导入。',
         true);
-      showToast('❌ 跨域被拦截，请用方案 A / B 解决', 'error');
+      showToast('❌ 请求失败，请用方案 A / B 解决', 'error');
     }
 
     // 抓取整个学期（CalendarServlet 支持按天查询，逐天请求后合并）
@@ -2055,6 +2071,7 @@
       }
       var idx = 0;
       var stopped = false;
+      var delay = 80; // 走代理时自动放慢，避免被限流
       function next() {
         if (stopped) return;
         if (idx >= dates.length) {
@@ -2068,12 +2085,12 @@
         var da = ('0' + date.getDate()).slice(-2);
         var u = url.replace(/([?&]date=)\d{4}-\d{2}-\d{2}/, '$1' + y + '-' + mo + '-' + da);
         if (!/[?&]date=/.test(u)) u += (u.indexOf('?') === -1 ? '?' : '&') + 'date=' + y + '-' + mo + '-' + da;
-        fetch(u).then(function(r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.text();
-        }).then(function(body) {
+        fetchTextFallback(u, function(pxName) {
+          if (idx === 1) status.textContent = '直连被拦截，正在经' + pxName + '抓取…';
+        }).then(function(res) {
+          delay = res.viaProxy ? 300 : 80;
           try {
-            courses = courses.concat(parseImportedCourses(body, { defaultDay: jsDayToCode(date.getDay()) }));
+            courses = courses.concat(parseImportedCourses(res.text, { defaultDay: jsDayToCode(date.getDay()) }));
           } catch (e) { /* 当天无课或为空，跳过 */ }
         }).catch(function(err) {
           failed++;
@@ -2085,7 +2102,7 @@
         }).then(function() {
           if (stopped) return;
           status.textContent = '正在抓取 ' + y + '-' + mo + '-' + da + '（' + idx + '/' + dates.length + '）' + (failed ? '，失败 ' + failed + ' 天' : '');
-          setTimeout(next, 80);
+          setTimeout(next, delay);
         });
       }
       next();
@@ -2107,17 +2124,22 @@
         return;
       }
       setImportStatus('正在请求 ' + url + ' …');
+      // 链接完整性校验：教务系统链接被截断（缺 weiXinID 参数）时直接提示，不发起注定失败的请求
+      if (/CalendarServlet/i.test(url) && !/[?&]weiXinID=/i.test(url)) {
+        setImportStatus('❌ 链接不完整：缺少 <b>weiXinID</b> 参数（链接在「?weiXin」处被截断了）。<br>' +
+          '请重新复制完整链接，形如：<br><code style="word-break:break-all">https://jwxt.ecjtu.edu.cn/weixin/CalendarServlet?weiXinID=你的ID&date=2026-08-31</code>', true);
+        return;
+      }
       var isCalendarApi = /CalendarServlet/i.test(url);
       var fullWrap = document.getElementById('importFullSemester');
       if (isCalendarApi && fullWrap && fullWrap.checked) {
         importCalendarSemester(url);
         return;
       }
-      fetch(url).then(function(r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.text();
-      }).then(function(body) {
-        finishImport(parseImportedCourses(body, { defaultDay: dayFromUrl(url) }));
+      fetchTextFallback(url, function(pxName) {
+        setImportStatus('直连被教务系统拦截，正在经' + pxName + '重试…');
+      }).then(function(res) {
+        finishImport(parseImportedCourses(res.text, { defaultDay: dayFromUrl(url) }));
       }).catch(function(err) {
         showCorsGuide(err);
       });
