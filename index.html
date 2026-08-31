@@ -553,6 +553,44 @@
     }
     .import-btn:active { background: var(--border); }
 
+    /* ── 主题色设置 ── */
+    .gear-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .gear-btn:active { background: var(--border); }
+    .gear-btn svg { width: 18px; height: 18px; color: var(--primary); }
+    .theme-options { display: flex; gap: 16px; justify-content: center; margin-top: 16px; }
+    .theme-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .theme-option .swatch {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      box-shadow: inset 0 0 0 2px #fff;
+      transition: all 0.15s;
+    }
+    .theme-option.active .swatch { border-color: var(--text); transform: scale(1.08); }
+    .theme-option.active { color: var(--text); font-weight: 600; }
+
     /* ── 导入弹窗 ── */
     .import-or {
       text-align: center;
@@ -630,6 +668,9 @@
       </div>
       <button class="refresh-btn" onclick="refreshData()" title="刷新数据">⟳</button>
       <button class="import-btn" onclick="openImportSheet()" title="导入教务系统课表">导入</button>
+      <button class="gear-btn" onclick="openThemeSheet()" title="主题色设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
       <button class="install-btn" id="installBtn" onclick="installPWA()" title="添加到桌面">＋</button>
     </div>
     <div class="week-pills" id="weekPills"></div>
@@ -700,6 +741,21 @@
         <textarea id="importTextArea" rows="5" placeholder="把教务系统页面 / 接口返回的内容直接粘贴到这里（支持 HTML / JSON / ICS）..."
                   style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;"></textarea>
         <div id="importStatus" style="font-size:13px;color:var(--text-secondary);margin-top:8px;line-height:1.6;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主题色设置 -->
+  <div class="sheet-overlay" id="themeSheet" onclick="closeThemeSheet(event)">
+    <div class="sheet-panel" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <button class="sheet-close" onclick="closeThemeSheet()">✕</button>
+      <div class="sheet-title">主题色设置</div>
+      <div class="sheet-info">
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px;">
+          选择课表的主色调，自动保存在本地。
+        </div>
+        <div class="theme-options" id="themeOptions"></div>
       </div>
     </div>
   </div>
@@ -1248,6 +1304,55 @@
       return w < 1 ? 1 : w;
     }
 
+    // ── 主题色设置 ──
+    var THEME_COLORS = [
+      { name: '学院蓝', value: '#4A90D9' },
+      { name: '森林绿', value: '#2F6F4E' },
+      { name: '极简灰', value: '#4A4A4A' }
+    ];
+
+    function applyTheme(color) {
+      document.documentElement.style.setProperty('--primary', color);
+    }
+
+    function initTheme() {
+      var c = null;
+      try { c = localStorage.getItem('theme_color'); } catch (e) {}
+      if (c && THEME_COLORS.some(function(t) { return t.value.toLowerCase() === c.toLowerCase(); })) {
+        applyTheme(c);
+      }
+    }
+
+    function renderThemeOptions() {
+      var current = null;
+      try { current = localStorage.getItem('theme_color'); } catch (e) {}
+      if (!current) current = THEME_COLORS[0].value;
+      var html = '';
+      THEME_COLORS.forEach(function(t) {
+        var active = t.value.toLowerCase() === current.toLowerCase() ? ' active' : '';
+        html += '<div class="theme-option' + active + '" onclick="setTheme(\'' + t.value + '\')">' +
+          '<div class="swatch" style="background:' + t.value + '"></div>' +
+          '<span>' + t.name + '</span></div>';
+      });
+      document.getElementById('themeOptions').innerHTML = html;
+    }
+
+    function openThemeSheet() {
+      renderThemeOptions();
+      document.getElementById('themeSheet').classList.add('show');
+    }
+
+    function closeThemeSheet(e) {
+      if (e && e.target !== document.getElementById('themeSheet')) return;
+      document.getElementById('themeSheet').classList.remove('show');
+    }
+
+    function setTheme(value) {
+      applyTheme(value);
+      try { localStorage.setItem('theme_color', value); } catch (e) {}
+      renderThemeOptions();
+    }
+
     function openImportSheet() {
       document.getElementById('importSheet').classList.add('show');
       document.getElementById('importStatus').innerHTML = '';
@@ -1649,6 +1754,7 @@
     }
 
     // ── 启动 ──
+    initTheme();
     var nowWeek = getNowWeek();
     if (nowWeek >= 1 && nowWeek <= SEMESTER_TOTAL_WEEKS && nowWeek !== BREAK_WEEK) {
       currentWeek = nowWeek;
