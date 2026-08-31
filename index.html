@@ -626,6 +626,63 @@
     .theme-option.active .swatch { border-color: var(--ink); transform: scale(1.08); }
     .theme-option.active { color: var(--ink); font-weight: 600; }
 
+    /* ── 作息时间设置 ── */
+    .sheet-link-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; margin-top: 14px;
+      border: 1px solid var(--line); border-radius: 10px;
+      cursor: pointer; font-size: 14px; color: var(--ink);
+      background: var(--paper-2);
+      transition: border-color 0.15s;
+    }
+    .sheet-link-row:hover { border-color: var(--accent); }
+    .sheet-link-value { font-size: 12px; color: var(--ink-muted); }
+    .sched-option {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; margin-bottom: 10px;
+      border: 1.5px solid var(--line); border-radius: 10px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .sched-option:hover { border-color: var(--ink-muted); }
+    .sched-option.active { border-color: var(--accent); background: var(--accent-soft); }
+    .sched-option b { font-size: 14px; color: var(--ink); }
+    .sched-desc { font-size: 12px; color: var(--ink-muted); margin-top: 3px; line-height: 1.5; }
+    .sched-radio {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--line); flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .sched-option.active .sched-radio {
+      border-color: var(--accent);
+      background: radial-gradient(circle, var(--accent) 0 40%, transparent 45%);
+    }
+    .sched-note {
+      font-size: 12px; color: var(--ink-muted); line-height: 1.7;
+      margin: 4px 0 12px; padding: 10px 12px;
+      background: var(--paper-2); border-radius: 8px;
+    }
+    .sched-row {
+      display: grid; grid-template-columns: 56px 1fr 14px 1fr;
+      align-items: center; gap: 8px; padding: 3px 0;
+    }
+    .sched-row-label {
+      font-size: 12px; color: var(--ink-soft);
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    }
+    .sched-row input[type="time"] {
+      width: 100%; padding: 6px 8px;
+      border: 1px solid var(--line); border-radius: 6px;
+      background: var(--paper); color: var(--ink);
+      font-size: 13px; font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    }
+    .sched-row input[type="time"]:disabled { color: var(--ink-muted); }
+    .sched-row input[type="time"]:not(:disabled):focus {
+      outline: none; border-color: var(--accent);
+    }
+    .sched-dash { color: var(--ink-muted); text-align: center; }
+    .sched-save { width: 100%; margin-top: 12px; }
+
+
     /* ── 导入弹窗 ── */
     .import-or { text-align: center; font-size: 12px; color: var(--ink-muted); margin: 4px 0; }
     .import-note { font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
@@ -875,6 +932,28 @@
           选择课表的强调色，自动保存在本地。
         </div>
         <div class="theme-options" id="themeOptions"></div>
+        <div class="sheet-link-row" onclick="openScheduleSheet()">
+          <span>作息时间</span>
+          <span class="sheet-link-value"><span id="schedModeLabel">夏季作息</span> ›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 作息时间设置 -->
+  <div class="sheet-overlay" id="scheduleSheet" onclick="closeScheduleSheet(event)">
+    <div class="sheet-panel" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <button class="sheet-close" onclick="closeScheduleSheet()">✕</button>
+      <div class="sheet-title">作息时间</div>
+      <div class="sheet-info">
+        <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">
+          切换后课表所有时间（节次 / 红线 / 下一节课 / 提醒）自动换算。
+        </div>
+        <div id="schedModeWrap"></div>
+        <div class="sched-note" id="schedWinterNote"></div>
+        <div class="sched-rows" id="schedRowsWrap"></div>
+        <button class="install-guide-btn sched-save" id="schedSaveBtn" onclick="saveCustomSchedule()" style="display:none;">保存自定义作息</button>
       </div>
     </div>
   </div>
@@ -883,7 +962,7 @@
   <script>
     // Service Worker 注册（file:// 协议下不支持，直接跳过避免报错）
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-      navigator.serviceWorker.register('./sw.js?v=4').then(function(reg) {
+      navigator.serviceWorker.register('./sw.js?v=5').then(function(reg) {
         reg.addEventListener('updatefound', function() {
           var newWorker = reg.installing;
           newWorker.addEventListener('statechange', function() {
@@ -922,13 +1001,113 @@
     var BREAK_WEEK = 9;
     var ROW_HEIGHT = 110; // 桌面 Grid 每节次行高（px）
 
-    var PERIODS = [
-      { label: '1-2节', time: '08:00-09:45', startH: 8, startM: 0, endH: 9, endM: 45 },
-      { label: '3-4节', time: '10:00-11:45', startH: 10, startM: 0, endH: 11, endM: 45 },
-      { label: '5-6节', time: '14:00-15:45', startH: 14, startM: 0, endH: 15, endM: 45 },
-      { label: '7-8节', time: '16:00-17:45', startH: 16, startM: 0, endH: 17, endM: 45 },
-      { label: '9-10节', time: '19:00-20:45', startH: 19, startM: 0, endH: 20, endM: 45 }
-    ];
+    // ── 作息时间系统（夏季 / 自定义可切换）──
+    // 夏季作息来自学校作息表（2026 秋季）；冬季作息待学校发布后可自定义填入
+    var SCHEDULE_PRESETS = {
+      summer: {
+        name: '夏季作息',
+        periods: [
+          ['08:00', '08:45'], ['08:55', '09:40'],
+          ['10:05', '10:50'], ['10:55', '11:40'],
+          ['14:30', '15:15'], ['15:25', '16:10'],
+          ['16:40', '17:25'], ['17:35', '18:20'],
+          ['19:00', '19:45'], ['19:55', '20:40']
+        ],
+        // 第 3、4 节按教学场地分组执行不同时间（其余节次三类场地统一）
+        variants: [
+          { key: 'yifu', name: '逸夫楼/教14栋/教38栋/教31栋4-6层', periods: { 3: ['10:10', '10:55'], 4: ['11:05', '11:50'] } },
+          { key: 'lib', name: '教6栋/教10栋/图书馆', periods: { 3: ['10:20', '11:05'], 4: ['11:15', '12:00'] } }
+        ]
+      }
+    };
+
+    var SCHEDULE_MODE_KEY = 'ecjtu_schedule_mode';
+    var SCHEDULE_CUSTOM_KEY = 'ecjtu_schedule_custom';
+
+    function parseHM(t) {
+      var p = String(t).split(':');
+      return { H: parseInt(p[0], 10) || 0, M: parseInt(p[1], 10) || 0 };
+    }
+
+    function getScheduleMode() {
+      try {
+        var m = localStorage.getItem(SCHEDULE_MODE_KEY);
+        if (m === 'summer' || m === 'custom') return m;
+      } catch (e) {}
+      return 'summer';
+    }
+
+    function getCustomPeriods() {
+      try {
+        var a = JSON.parse(localStorage.getItem(SCHEDULE_CUSTOM_KEY));
+        if (Array.isArray(a) && a.length === 10 &&
+            a.every(function(p) { return Array.isArray(p) && /^\d{1,2}:\d{2}$/.test(p[0]) && /^\d{1,2}:\d{2}$/.test(p[1]); })) {
+          return a;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    // 当前生效的 10 节标准时间
+    function getActivePeriods() {
+      if (getScheduleMode() === 'custom') {
+        var cp = getCustomPeriods();
+        if (cp) return cp;
+      }
+      return SCHEDULE_PRESETS.summer.periods;
+    }
+
+    // 教室 → 场地分组（仅影响第 3、4 节）：yifu / lib / null=标准
+    function roomVariant(location) {
+      if (!location) return null;
+      var s = String(location);
+      if (/图书馆|南图/.test(s)) return 'lib';
+      if (/教6栋|教10栋/.test(s)) return 'lib';
+      if (/逸夫|教14栋|教38栋/.test(s)) return 'yifu';
+      // 北区教31栋：房间号首位为楼层，4-6 层走逸夫楼组时间，其余标准
+      var m = s.match(/31[-栋]*(\d{3})/);
+      if (m) { var floor = parseInt(m[1].charAt(0), 10); if (floor >= 4) return 'yifu'; return null; }
+      return null;
+    }
+
+    // 某教室第 n 节（1-10）的实际上下课时间（应用场地分组修正）
+    function periodTime(n, location) {
+      var t = getActivePeriods()[n - 1];
+      if (getScheduleMode() !== 'custom' && (n === 3 || n === 4)) {
+        var v = roomVariant(location);
+        if (v) {
+          var vs = SCHEDULE_PRESETS.summer.variants;
+          for (var i = 0; i < vs.length; i++) {
+            if (vs[i].key === v && vs[i].periods[n]) { t = vs[i].periods[n]; break; }
+          }
+        }
+      }
+      return t;
+    }
+
+    // 5 个合并节次槽（标准时间），由 buildPeriodSlots 重建
+    var PERIODS = [];
+
+    function buildPeriodSlots() {
+      var base = getActivePeriods();
+      PERIODS = [];
+      for (var i = 0; i < 5; i++) {
+        var a = parseHM(base[i * 2][0]);
+        var b = parseHM(base[i * 2 + 1][1]);
+        PERIODS.push({
+          label: (i * 2 + 1) + '-' + (i * 2 + 2) + '节',
+          time: base[i * 2][0] + '-' + base[i * 2 + 1][1],
+          startH: a.H, startM: a.M, endH: b.H, endM: b.M
+        });
+      }
+    }
+
+    // 切换 / 保存作息后调用：重建节次并整体重渲染
+    function applySchedule() {
+      buildPeriodSlots();
+      renderAll();
+      drawCurrentTimeLine();
+    }
 
     var DAY_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
     var DAY_NAMES_EN = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
@@ -1048,15 +1227,20 @@
       return false;
     }
 
-    // 课程的节次区间（起止 period、合并 label 与时间串）
+    // 课程的节次区间（起止 period、合并 label 与教室实际时间——3、4 节按场地分组修正）
     function periodRangeOf(c) {
       var s = c.sections[0], e = c.sections[c.sections.length - 1];
+      var t1 = periodTime(s, c.location);
+      var t2 = periodTime(e, c.location);
       var p1 = PERIODS[periodIndexOfSection(s)];
       var p2 = PERIODS[periodIndexOfSection(e)];
+      var a1 = parseHM(t1[0]);
+      var b2 = parseHM(t2[1]);
       return {
         p1: p1, p2: p2,
         label: p1 === p2 ? p1.label : p1.label + '-' + p2.label,
-        time: p1 === p2 ? p1.time : p1.time.split('-')[0] + '-' + p2.time.split('-')[1]
+        time: t1[0] + '-' + t2[1],
+        startH: a1.H, startM: a1.M, endH: b2.H, endM: b2.M
       };
     }
 
@@ -1363,8 +1547,8 @@
           .sort(function(a, b) { return a.sections[0] - b.sections[0]; });
         for (var i = 0; i < dayCourses.length && upcoming.length < 4; i++) {
           var c = dayCourses[i];
-          var p = PERIODS[periodIndexOfSection(c.sections[0])];
-          var startMin = p.startH * 60 + p.startM;
+          var pt = parseHM(periodTime(c.sections[0], c.location)[0]);
+          var startMin = pt.H * 60 + pt.M;
           if (offset > 0 || startMin >= nowMin) {
             upcoming.push({ c: c, dayOffset: offset, dayIdx: dayIdx });
           }
@@ -1476,8 +1660,8 @@
         var pr = periodRangeOf(c);
         list.push({
           c: c,
-          startMin: pr.p1.startH * 60 + pr.p1.startM,
-          endMin: pr.p2.endH * 60 + pr.p2.endM,
+          startMin: pr.startH * 60 + pr.startM,
+          endMin: pr.endH * 60 + pr.endM,
           period: pr.label,
           time: pr.time
         });
@@ -1979,6 +2163,8 @@
 
     function openThemeSheet() {
       renderThemeOptions();
+      var lbl = document.getElementById('schedModeLabel');
+      if (lbl) lbl.textContent = getScheduleMode() === 'custom' ? '自定义' : '夏季';
       document.getElementById('themeSheet').classList.add('show');
     }
 
@@ -1991,6 +2177,82 @@
       applyTheme(value);
       try { localStorage.setItem('theme_color', value); } catch (e) {}
       renderThemeOptions();
+    }
+
+    // ── 作息时间设置 ──
+    function renderScheduleSheet() {
+      var mode = getScheduleMode();
+      var base = getActivePeriods();
+
+      // 模式选择
+      var modeHtml =
+        '<div class="sched-option' + (mode === 'summer' ? ' active' : '') + '" onclick="setScheduleMode(\'summer\')">' +
+        '<div><b>夏季作息</b><div class="sched-desc">学校现行作息 · 第 3、4 节按教学场地自动适配</div></div>' +
+        '<span class="sched-radio"></span></div>' +
+        '<div class="sched-option' + (mode === 'custom' ? ' active' : '') + '" onclick="setScheduleMode(\'custom\')">' +
+        '<div><b>自定义作息</b><div class="sched-desc">冬季作息发布后，在此填入每节时间即可整体切换</div></div>' +
+        '<span class="sched-radio"></span></div>';
+      document.getElementById('schedModeWrap').innerHTML = modeHtml;
+
+      // 冬季提示
+      document.getElementById('schedWinterNote').innerHTML =
+        '❄️ 冬季作息待学校发布：发布后把作息表发给帮你维护课表的人更新内置预设，' +
+        '或直接切到「自定义作息」逐节填入时间。';
+
+      // 10 节时间表（自定义模式可编辑）
+      var rows = '';
+      for (var i = 0; i < 10; i++) {
+        rows += '<div class="sched-row' + (mode === 'custom' ? ' editable' : '') + '">' +
+          '<span class="sched-row-label">第 ' + (i + 1) + ' 节</span>' +
+          '<input id="schedIn' + i + 's" type="time" value="' + base[i][0] + '"' + (mode === 'custom' ? '' : ' disabled') + '>' +
+          '<span class="sched-dash">–</span>' +
+          '<input id="schedIn' + i + 'e" type="time" value="' + base[i][1] + '"' + (mode === 'custom' ? '' : ' disabled') + '>' +
+          '</div>';
+      }
+      document.getElementById('schedRowsWrap').innerHTML = rows;
+      document.getElementById('schedSaveBtn').style.display = mode === 'custom' ? '' : 'none';
+
+      // 主题面板里的模式标签
+      var lbl = document.getElementById('schedModeLabel');
+      if (lbl) lbl.textContent = mode === 'custom' ? '自定义' : '夏季';
+    }
+
+    function openScheduleSheet() {
+      renderScheduleSheet();
+      document.getElementById('scheduleSheet').classList.add('show');
+    }
+
+    function closeScheduleSheet(e) {
+      if (e && e.target !== document.getElementById('scheduleSheet')) return;
+      document.getElementById('scheduleSheet').classList.remove('show');
+    }
+
+    function setScheduleMode(mode) {
+      try {
+        localStorage.setItem(SCHEDULE_MODE_KEY, mode);
+        // 切到自定义而无数据时，用当前生效时间初始化，便于在此基础上改
+        if (mode === 'custom' && !getCustomPeriods()) {
+          localStorage.setItem(SCHEDULE_CUSTOM_KEY, JSON.stringify(getActivePeriods()));
+        }
+      } catch (e) {}
+      applySchedule();
+      renderScheduleSheet();
+      showToast(mode === 'summer' ? '已切换到夏季作息' : '已切换到自定义作息', 'success');
+    }
+
+    function saveCustomSchedule() {
+      var arr = [];
+      for (var i = 0; i < 10; i++) {
+        var s = document.getElementById('schedIn' + i + 's').value;
+        var e = document.getElementById('schedIn' + i + 'e').value;
+        if (!s || !e) { showToast('第 ' + (i + 1) + ' 节时间不完整', 'error'); return; }
+        if (s >= e) { showToast('第 ' + (i + 1) + ' 节开始时间需早于结束时间', 'error'); return; }
+        arr.push([s, e]);
+      }
+      try { localStorage.setItem(SCHEDULE_CUSTOM_KEY, JSON.stringify(arr)); } catch (err) {}
+      applySchedule();
+      renderScheduleSheet();
+      showToast('自定义作息已保存，全部时间已换算', 'success');
     }
 
     // ── 数据加载 ──
@@ -2035,6 +2297,7 @@
 
     // ── 启动 ──
     initTheme();
+    buildPeriodSlots(); // 依当前作息模式构建节次时间
     var nowWeek = getNowWeek();
     if (nowWeek === BREAK_WEEK) nowWeek = BREAK_WEEK + 1; // 假期周定位到下一教学周
     if (nowWeek >= 1 && nowWeek <= SEMESTER_TOTAL_WEEKS) {
