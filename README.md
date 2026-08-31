@@ -12,9 +12,9 @@
 - 当前时间红线：按节次时间比例定位，切周 / 窗口缩放时自动重画
 - 「下一节课」提示条：显示课名、节次、教室与倒计时
 - 「接下来的课程」卡片：未来 7 天内最近 4 节课一览
-- 「导入」功能：粘贴教务系统 API 链接或页面内容，自动解析 HTML / JSON / ICS 格式
+- 「导入」功能：粘贴教务系统 API 链接或页面内容，自动解析 HTML / JSON / ICS 格式；跨域被拦截时自动依次尝试公共 CORS 代理，链接不完整（缺 `weiXinID`）会直接提示
 - 主题色设置：赤陶红 / 湖蓝 / 苔绿 / 紫藤（纸墨调色板），本地保存
-- PWA：可添加到手机桌面，离线可用
+- PWA：离线可用（安装入口见移动端底部导航；桌面端不显示安装按钮，推荐直接使用 APK 版）
 
 ## 如何导入自己的课表
 
@@ -38,19 +38,13 @@ https://jwxt.ecjtu.edu.cn/weixin/CalendarServlet?weiXinID=<你的ID>&date=YYYY-M
 
 ## CORS 跨域说明与解决方案
 
-教务系统 `jwxt.ecjtu.edu.cn` 不返回 `Access-Control-Allow-Origin` 响应头，部署在 GitHub Pages 上的页面**无法直接 fetch 该接口**（浏览器跨域限制，不是课表的 bug）。导入时会给出红色提示，可用以下两个方案解决：
+教务系统 `jwxt.ecjtu.edu.cn` 不返回 `Access-Control-Allow-Origin` 响应头，部署在 GitHub Pages 上的页面**无法直接 fetch 该接口**（浏览器跨域限制，不是课表的 bug）。
 
-### 方案 A：本地代理（会用命令行）
+现在导入会自动处理：直连失败后依次尝试 3 个公共 CORS 代理（allorigins / codetabs / corsproxy，单次请求 12 秒超时），多数情况下无需手动操作。若代理被限流导致全部失败，可用以下两个方案：
 
-在本地起一个小代理，把请求转发到教务系统：
+### 方案 A：稍后重试
 
-```bash
-npx cors-anywhere-server 8080
-# 或
-npx local-cors-proxy --proxyUrl https://jwxt.ecjtu.edu.cn
-```
-
-然后把导入链接换成 `http://localhost:8080/https://jwxt.ecjtu.edu.cn/weixin/CalendarServlet?...`，导入成功后数据已存进 localStorage，之后不再需要代理。
+公共代理有速率限制，通常几分钟后恢复，重新点「立即导入」即可。
 
 ### 方案 B：手动粘贴（零门槛）
 
