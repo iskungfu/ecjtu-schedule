@@ -176,11 +176,44 @@
 
     /* ── 课表主体 ── */
     .schedule-wrapper {
+      position: relative;
       margin: 0 16px;
       background: var(--card-bg);
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    /* 当前时间红线 */
+    .time-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #E5484D;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .time-line::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: -3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #E5484D;
+    }
+    .time-line .time-line-label {
+      position: absolute;
+      right: 4px;
+      top: -16px;
+      font-size: 10px;
+      color: #E5484D;
+      font-weight: 600;
+      background: rgba(255,255,255,0.85);
+      padding: 1px 4px;
+      border-radius: 3px;
+      line-height: 1.2;
     }
     .schedule-table {
       width: 100%;
@@ -955,11 +988,73 @@
       document.getElementById('legend').innerHTML = legendHtml;
     }
 
+    // ── 当前时间红线 ──
+    function clearTimeLine() {
+      var old = document.querySelectorAll('.time-line');
+      for (var i = 0; i < old.length; i++) old[i].parentNode.removeChild(old[i]);
+    }
+
+    function drawCurrentTimeLine() {
+      clearTimeLine();
+      var wrapper = document.querySelector('.schedule-wrapper');
+      var body = document.getElementById('scheduleBody');
+      if (!wrapper || !body) return;
+
+      // 仅当「本周」包含今天时才画线
+      var dates = getWeekDates(currentWeek);
+      var now = new Date();
+      var hasToday = false;
+      for (var i = 0; i < 7; i++) { if (isSameDay(dates[i], now)) { hasToday = true; break; } }
+      if (!hasToday) return;
+
+      var minutes = now.getHours() * 60 + now.getMinutes();
+      var firstStart = PERIODS[0].startH * 60 + PERIODS[0].startM;
+      var lastEnd = (PERIODS[PERIODS.length - 1].endH * 60 + PERIODS[PERIODS.length - 1].endM);
+      if (minutes < firstStart || minutes > lastEnd) return; // 课表时间之外不画
+
+      var wrapperRect = wrapper.getBoundingClientRect();
+      var rows = body.querySelectorAll('tr');
+      var lineTop = null;
+
+      for (var p = 0; p < PERIODS.length; p++) {
+        var period = PERIODS[p];
+        var pStart = period.startH * 60 + period.startM;
+        var pEnd = period.endH * 60 + period.endM;
+        var tr = rows[p];
+        if (!tr) continue;
+        var r = tr.getBoundingClientRect();
+
+        if (minutes <= pEnd) {
+          // 当前时间落在该节（或其之前）：按比例定位
+          var frac = Math.max(0, (minutes - pStart) / (pEnd - pStart));
+          lineTop = r.top - wrapperRect.top + r.height * frac;
+          break;
+        }
+        // 还没到：介于上一节结束和本节开始之间，贴本节顶部
+        if (minutes < pStart) {
+          lineTop = r.top - wrapperRect.top;
+          break;
+        }
+      }
+
+      if (lineTop === null) return;
+      var line = document.createElement('div');
+      line.className = 'time-line';
+      line.style.top = lineTop + 'px';
+      var label = document.createElement('span');
+      label.className = 'time-line-label';
+      var hh = now.getHours(), mm = now.getMinutes();
+      label.textContent = (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm;
+      line.appendChild(label);
+      wrapper.appendChild(line);
+    }
+
     function renderAll() {
       renderHeader();
       renderWeekPills();
       renderTodayCard();
       renderSchedule();
+      drawCurrentTimeLine();
     }
 
     function selectWeek(week) {
@@ -1429,6 +1524,9 @@
       currentWeek = nowWeek;
     }
     loadCourseData();
+    // 红线随窗口尺寸变化 & 每分钟自动刷新位置
+    window.addEventListener('resize', drawCurrentTimeLine);
+    setInterval(drawCurrentTimeLine, 60000);
   </script>
 </body>
 </html>
