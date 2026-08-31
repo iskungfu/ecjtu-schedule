@@ -174,6 +174,34 @@
     .today-card .tc-title { font-weight: 600; color: var(--text); }
     .today-card .tc-sub { font-size: 12px; color: var(--text-secondary); }
 
+    /* ── 下一节课提示条 ── */
+    .next-class-bar {
+      margin: 12px 16px 0;
+      padding: 10px 14px;
+      background: #EDF4FC;
+      border-left: 3px solid var(--primary);
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .next-class-bar .ncb-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--primary);
+      border-radius: 4px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+    .next-class-bar .ncb-name { font-weight: 600; }
+    .next-class-bar .ncb-meta { font-size: 12px; color: var(--text-secondary); }
+    .next-class-bar .ncb-countdown { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--primary); flex-shrink: 0; }
+
     /* ── 课表主体 ── */
     .schedule-wrapper {
       position: relative;
@@ -597,6 +625,9 @@
       <div class="tc-sub" id="tcSub">自由生长，好好休息</div>
     </div>
   </div>
+
+  <!-- 下一节课提示条 -->
+  <div class="next-class-bar" id="nextClassBar" style="display:none"></div>
 
   <div class="schedule-wrapper">
     <table class="schedule-table" id="scheduleTable">
@@ -1049,10 +1080,80 @@
       wrapper.appendChild(line);
     }
 
+    // ── 下一节课提示条 ──
+    function periodIndexOfSection(sec) {
+      var idx = Math.floor((sec - 1) / 2);
+      if (idx < 0) idx = 0;
+      if (idx > PERIODS.length - 1) idx = PERIODS.length - 1;
+      return idx;
+    }
+
+    function courseInWeek(c, week) {
+      if (c.weeks) return c.weeks.indexOf(week) !== -1;
+      if (c.startWeek !== undefined && c.endWeek !== undefined) {
+        return week >= c.startWeek && week <= c.endWeek;
+      }
+      return false;
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderNextClassBar() {
+      var bar = document.getElementById('nextClassBar');
+      if (!bar) return;
+      var now = new Date();
+      var todayCode = jsDayToCode(now.getDay());
+      var nowWeek = getNowWeek();
+      var minutes = now.getHours() * 60 + now.getMinutes();
+      var data = allCourseData || FALLBACK_COURSES;
+
+      // 今天（真实日期所在周）的课程，按开始时间排序
+      var list = [];
+      data.forEach(function(c) {
+        if (c.day !== todayCode) return;
+        if (!courseInWeek(c, nowWeek)) return;
+        var s = c.sections[0], e = c.sections[c.sections.length - 1];
+        var p1 = PERIODS[periodIndexOfSection(s)];
+        var p2 = PERIODS[periodIndexOfSection(e)];
+        list.push({
+          c: c,
+          startMin: p1.startH * 60 + p1.startM,
+          endMin: p2.endH * 60 + p2.endM,
+          period: p1 === p2 ? p1.label : p1.label + '-' + p2.label,
+          time: p1 === p2 ? p1.time : p1.time.split('-')[0] + '-' + p2.time.split('-')[1]
+        });
+      });
+      list.sort(function(a, b) { return a.startMin - b.startMin; });
+
+      // 下一节 = 未结束的第一节
+      var next = null;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].endMin > minutes) { next = list[i]; break; }
+      }
+      if (!next) { bar.style.display = 'none'; return; }
+
+      var inProgress = next.startMin <= minutes;
+      var diff = inProgress ? (next.endMin - minutes) : (next.startMin - minutes);
+      var countdown = diff >= 60 ? Math.floor(diff / 60) + ' 小时 ' + (diff % 60) + ' 分钟' : diff + ' 分钟';
+      countdown = inProgress ? '还剩 ' + countdown : countdown + '后上课';
+
+      var meta = next.period + ' · ' + next.time;
+      if (next.c.location) meta += ' · ' + next.c.location;
+      bar.innerHTML =
+        '<span class="ncb-tag">' + (inProgress ? '正在上课' : '下一节课') + '</span>' +
+        '<span class="ncb-name">' + escHtml(next.c.name) + '</span>' +
+        '<span class="ncb-meta">' + escHtml(meta) + '</span>' +
+        '<span class="ncb-countdown">' + countdown + '</span>';
+      bar.style.display = 'flex';
+    }
+
     function renderAll() {
       renderHeader();
       renderWeekPills();
       renderTodayCard();
+      renderNextClassBar();
       renderSchedule();
       drawCurrentTimeLine();
     }
@@ -1524,9 +1625,9 @@
       currentWeek = nowWeek;
     }
     loadCourseData();
-    // 红线随窗口尺寸变化 & 每分钟自动刷新位置
-    window.addEventListener('resize', drawCurrentTimeLine);
-    setInterval(drawCurrentTimeLine, 60000);
+    // 红线 & 提示条随窗口尺寸变化 & 每分钟自动刷新位置
+    window.addEventListener('resize', function() { drawCurrentTimeLine(); renderNextClassBar(); });
+    setInterval(function() { drawCurrentTimeLine(); renderNextClassBar(); }, 60000);
   </script>
 </body>
 </html>
