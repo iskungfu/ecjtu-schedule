@@ -955,7 +955,7 @@
   <script>
     // Service Worker 注册（file:// 协议下不支持，直接跳过避免报错）
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-      navigator.serviceWorker.register('./sw.js?v=6').then(function(reg) {
+      navigator.serviceWorker.register('./sw.js?v=7').then(function(reg) {
         reg.addEventListener('updatefound', function() {
           var newWorker = reg.installing;
           newWorker.addEventListener('statechange', function() {
@@ -1990,6 +1990,20 @@
       return jsDayToCode(new Date(+m[1], +m[2] - 1, +m[3]).getDay());
     }
 
+    // 教务系统对未绑定的 weiXinID 返回「绑定」页面——识别后给出精确提示
+    function isBindingPage(text) {
+      return /BindingServlet|微信平台绑定/.test(String(text).slice(0, 3000));
+    }
+
+    function bindingPageError() {
+      setImportStatus(
+        '❌ 该链接返回的是教务系统「绑定」页面：weiXinID 不正确或被截断了。<br><br>' +
+        '链接应为完整长串 ID，形如：<br><code style="word-break:break-all">https://jwxt.ecjtu.edu.cn/weixin/CalendarServlet?weiXinID=orOcuw<b>……共 28 位</b>&date=2026-08-31</code><br><br>' +
+        '请到微信版教务系统重新打开课表页，从地址栏复制完整链接；或直接点右上角「⟳ 刷新」使用官方同步课表。',
+        true);
+      showToast('❌ weiXinID 不正确或被截断', 'error');
+    }
+
     // ── 跨域自动回退：直连失败后依次尝试公共 CORS 代理 ──
     var CORS_PROXIES = [
       { name: '公共代理①', build: function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
@@ -2048,11 +2062,12 @@
     function showCorsGuide(err) {
       setImportStatus(
         '❌ 无法请求该链接（' + (err && err.message ? err.message : '请求失败') +
-        '）。直连与公共代理均未成功——教务系统不开放跨域访问，公共代理可能被限流。<br><br>' +
-        '<b>方案 A：</b>稍后重试（代理限流通常几分钟后恢复）；<br>' +
-        '<b>方案 B：</b>浏览器直接打开该链接，全选复制返回内容，粘贴到下方文本框导入。',
+        '）。教务系统不开放跨域访问，公共代理当前不可用。<br><br>' +
+        '<b>方案 A：</b>点右上角「⟳ 刷新」直接使用官方同步课表（已内置全学期数据，推荐）；<br>' +
+        '<b>方案 B：</b>稍后重试链接导入（代理限流通常几分钟后恢复）；<br>' +
+        '<b>方案 C：</b>浏览器直接打开该链接，全选复制返回内容，粘贴到下方文本框导入。',
         true);
-      showToast('❌ 请求失败，请用方案 A / B 解决', 'error');
+      showToast('❌ 请求失败，推荐点「⟳ 刷新」用官方数据', 'error');
     }
 
     // 抓取整个学期（CalendarServlet 支持按天查询，逐天请求后合并）
@@ -2089,6 +2104,11 @@
           if (idx === 1) status.textContent = '直连被拦截，正在经' + pxName + '抓取…';
         }).then(function(res) {
           delay = res.viaProxy ? 300 : 80;
+          if (isBindingPage(res.text)) { // ID 无效/截断：教务系统返回绑定页，立即终止
+            stopped = true;
+            bindingPageError();
+            return;
+          }
           try {
             courses = courses.concat(parseImportedCourses(res.text, { defaultDay: jsDayToCode(date.getDay()) }));
           } catch (e) { /* 当天无课或为空，跳过 */ }
@@ -2139,6 +2159,7 @@
       fetchTextFallback(url, function(pxName) {
         setImportStatus('直连被教务系统拦截，正在经' + pxName + '重试…');
       }).then(function(res) {
+        if (isBindingPage(res.text)) { bindingPageError(); return; }
         finishImport(parseImportedCourses(res.text, { defaultDay: dayFromUrl(url) }));
       }).catch(function(err) {
         showCorsGuide(err);
