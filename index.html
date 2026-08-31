@@ -223,6 +223,13 @@
     .schedule-table .day-col {
       width: 1fr;
     }
+    .schedule-table .weekend-col {
+      background: #FAFAFA;
+    }
+    .schedule-table th.weekend-col {
+      background: #F4F4F4;
+      color: var(--text-secondary);
+    }
     .schedule-table .today-col {
       background: #FFFEF9;
     }
@@ -250,16 +257,17 @@
     }
     .course-cell .cc-name {
       font-weight: 600;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text);
       margin-bottom: 2px;
+      word-break: break-all;
     }
     .course-cell .cc-teacher {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-secondary);
     }
     .course-cell .cc-room {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-tertiary);
     }
     .course-cell .cc-sections {
@@ -811,7 +819,7 @@
     function renderHeader() {
       var dates = getWeekDates(currentWeek);
       document.getElementById('headerTitle').textContent = '第 ' + currentWeek + ' 周课程表';
-      document.getElementById('headerDate').textContent = formatMD(dates[0]) + ' - ' + formatMD(dates[4]);
+      document.getElementById('headerDate').textContent = formatMD(dates[0]) + ' - ' + formatMD(dates[6]);
       document.getElementById('headerStatus').textContent = '可浏览各周课表';
     }
 
@@ -867,11 +875,12 @@
 
       // 表头
       var headHtml = '<tr><th class="period-col"><span class="period-num">节次</span></th>';
-      for (var d = 0; d < 5; d++) {
+      for (var d = 0; d < 7; d++) {
         var dt = dates[d];
         var dn = DAY_NAMES[dt.getDay()];
         var isToday = isSameDay(dt, today);
         var cls = 'day-col';
+        if (d >= 5) cls += ' weekend-col';
         if (isToday) cls += ' today-col';
         headHtml += '<th class="' + cls + '">周' + dn + '<br><span style="font-size:11px;font-weight:400;color:var(--text-secondary)">' + (dt.getMonth()+1) + '/' + dt.getDate() + '</span></th>';
       }
@@ -884,7 +893,7 @@
         var period = PERIODS[p];
         bodyHtml += '<tr>';
         bodyHtml += '<td class="period-col"><span class="period-num">' + period.label + '</span></td>';
-        for (var d = 0; d < 5; d++) {
+        for (var d = 0; d < 7; d++) {
           var day = d + 1;
           var dt = dates[d];
           var isToday = isSameDay(dt, today);
@@ -896,6 +905,7 @@
           });
 
           var tdCls = '';
+          if (d >= 5) tdCls += ' weekend-col';
           if (isToday) tdCls += ' today-col';
 
           if (cellCourses.length === 0) {
