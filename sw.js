@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ecjtu-schedule-v7';
+const CACHE_NAME = 'ecjtu-schedule-v8';
 const ASSETS = [
   './',
   './index.html',

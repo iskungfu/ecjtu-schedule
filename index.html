@@ -384,6 +384,106 @@
       font-size: 15px; font-weight: 600;
     }
     .mobile-day-tab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+    /* ── 移动端视图切换（单日/整周） ── */
+    .mobile-view-switch {
+      display: none;
+      align-items: center;
+      margin: 12px 20px 0;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 3px;
+    }
+    .mvs-btn {
+      flex: 1;
+      padding: 7px 0;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ink-muted);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mvs-btn.active {
+      background: var(--paper);
+      color: var(--ink);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(43, 42, 38, 0.08);
+    }
+
+    /* ── 移动端整周网格 ── */
+    .mobile-week-title {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin: 4px 0 10px;
+    }
+    .mobile-week-title h2 { font-size: 18px; color: var(--ink); margin: 0; }
+    .mobile-week-title .mdt-count { font-size: 12px; color: var(--ink-muted); }
+    .mobile-week-grid {
+      display: grid;
+      grid-template-columns: 24px repeat(7, 1fr);
+      gap: 3px;
+      min-width: 0;
+    }
+    .mw-corner { }
+    .mw-head {
+      text-align: center; padding: 4px 0 6px;
+    }
+    .mw-head .mwh-name { display: block; font-size: 10px; color: var(--ink-soft); line-height: 1.2; }
+    .mw-head .mwh-date { display: block; font-size: 12px; color: var(--ink); font-family: 'IBM Plex Mono', monospace; }
+    .mw-head.today .mwh-name, .mw-head.today .mwh-date { color: var(--accent); font-weight: 700; }
+    .mw-slot {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; color: var(--ink-muted); line-height: 1.3;
+      font-family: 'IBM Plex Mono', monospace;
+      text-align: center;
+      padding: 2px 0;
+    }
+    .mw-cell {
+      border-radius: 6px;
+      min-height: 74px;
+      background: var(--paper-2);
+      border: 1px solid var(--line-soft);
+      padding: 3px;
+      overflow: hidden;
+      cursor: default;
+    }
+    .mw-cell.has-course { cursor: pointer; }
+    .mw-chip {
+      height: 100%;
+      border-radius: 5px;
+      background: var(--accent-soft);
+      padding: 4px 3px;
+      display: flex; flex-direction: column; gap: 2px;
+      overflow: hidden;
+    }
+    .mw-chip-name {
+      font-size: 9px; line-height: 1.25; color: var(--ink);
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-all;
+    }
+    .mw-chip-loc {
+      font-size: 8px; line-height: 1.2; color: var(--ink-muted);
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mw-chip.c-sage { background: rgba(107, 138, 79, 0.16); }
+    .mw-chip.c-peach { background: rgba(200, 85, 61, 0.16); }
+    .mw-chip.c-sky { background: rgba(58, 124, 165, 0.16); }
+    .mw-chip.c-lilac { background: rgba(123, 94, 167, 0.16); }
+    .mw-chip.c-amber { background: rgba(200, 155, 60, 0.16); }
+    .mw-chip.c-rose { background: rgba(160, 77, 99, 0.16); }
+    .mw-chip.c-teal { background: rgba(58, 138, 133, 0.16); }
+    .mw-chip.c-sage .mw-chip-name { color: #4e6b3a; }
+    .mw-chip.c-peach .mw-chip-name { color: #a4432f; }
+    .mw-chip.c-sky .mw-chip-name { color: #2d6285; }
+    .mw-chip.c-lilac .mw-chip-name { color: #61498a; }
+    .mw-chip.c-amber .mw-chip-name { color: #a67d26; }
+    .mw-chip.c-rose .mw-chip-name { color: #86394d; }
+    .mw-chip.c-teal .mw-chip-name { color: #2c6f6a; }
     .mobile-day-title {
       display: flex; align-items: baseline; gap: 10px;
       margin-bottom: 16px;
@@ -723,6 +823,8 @@
       .content-title { font-size: 22px; }
       .schedule-wrapper { display: none; }
       .mobile-day-tabs { display: flex; }
+      .mobile-view-switch { display: flex; }
+      .mobile-day-tabs.hidden-by-week { display: none; }
       .bottom-nav { display: block; }
       .today-card, .next-class-bar, .upcoming-section { margin-left: 20px; margin-right: 20px; }
       .upcoming-list { grid-template-columns: 1fr; }
@@ -831,8 +933,12 @@
           </div>
         </div>
 
-        <!-- 移动端：单日卡片流 -->
+        <!-- 移动端：单日卡片流 / 整周网格 -->
         <div class="mobile-only">
+          <div class="mobile-view-switch">
+            <button class="mvs-btn active" id="mvsDay" onclick="setMobileView('day')">单日</button>
+            <button class="mvs-btn" id="mvsWeek" onclick="setMobileView('week')">整周</button>
+          </div>
           <div class="mobile-day-tabs" id="mobileDayTabs"></div>
           <div id="mobileDayView" style="padding:16px 20px"></div>
         </div>
@@ -955,7 +1061,7 @@
   <script>
     // Service Worker 注册（file:// 协议下不支持，直接跳过避免报错）
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-      navigator.serviceWorker.register('./sw.js?v=7').then(function(reg) {
+      navigator.serviceWorker.register('./sw.js?v=8').then(function(reg) {
         reg.addEventListener('updatefound', function() {
           var newWorker = reg.installing;
           newWorker.addEventListener('statechange', function() {
@@ -1126,6 +1232,14 @@
     // ── 数据 ──
     var currentWeek = 1;
     var mobileDay = (new Date().getDay() + 6) % 7; // 0=周一
+    var MOBILE_VIEW_KEY = 'ecjtu_mobile_view';
+    var mobileViewMode = (function() {
+      try {
+        var m = localStorage.getItem(MOBILE_VIEW_KEY);
+        if (m === 'day' || m === 'week') return m;
+      } catch (e) {}
+      return 'day';
+    })();
     var allCourseData = null;
 
     // 内置 fallback 数据
@@ -1450,8 +1564,24 @@
       document.getElementById('scheduleGrid').innerHTML = html;
     }
 
-    // ── 移动端单日视图 ──
+    // ── 移动端视图（单日卡片流 / 整周网格） ──
+    function setMobileView(mode) {
+      mobileViewMode = mode;
+      try { localStorage.setItem(MOBILE_VIEW_KEY, mode); } catch (e) {}
+      renderMobileDay();
+    }
+
     function renderMobileDay() {
+      var tabsEl = document.getElementById('mobileDayTabs');
+      var dayBtn = document.getElementById('mvsDay');
+      var weekBtn = document.getElementById('mvsWeek');
+      if (dayBtn && weekBtn) {
+        dayBtn.classList.toggle('active', mobileViewMode === 'day');
+        weekBtn.classList.toggle('active', mobileViewMode === 'week');
+      }
+      tabsEl.classList.toggle('hidden-by-week', mobileViewMode === 'week');
+      if (mobileViewMode === 'week') { renderMobileWeek(); return; }
+
       var dates = getWeekDates(currentWeek);
       var weekCourses = getWeekCourses(currentWeek);
       var today = new Date();
@@ -1509,6 +1639,52 @@
     function selectDay(d) {
       mobileDay = d;
       renderMobileDay();
+    }
+
+    function renderMobileWeek() {
+      var dates = getWeekDates(currentWeek);
+      var weekCourses = getWeekCourses(currentWeek);
+      var today = new Date();
+      var SLOT_LABELS = ['1-2', '3-4', '5-6', '7-8', '9-10'];
+      var slotIdx = function(sec) { return Math.floor((sec - 1) / 2); };
+      var cells = [];
+      for (var d = 0; d < 7; d++) { cells.push([null, null, null, null, null]); }
+      for (var ci = 0; ci < weekCourses.length; ci++) {
+        var c = weekCourses[ci];
+        var cd = c.day - 1;
+        var s0 = slotIdx(c.sections[0]);
+        var s1 = slotIdx(c.sections[c.sections.length - 1]);
+        for (var cs = s0; cs <= s1 && cs < 5; cs++) {
+          if (!cells[cd][cs]) cells[cd][cs] = { c: c, more: 0 };
+          else cells[cd][cs].more++;
+        }
+      }
+      var html = '<div class="mobile-week-title"><h2>整周课表</h2>' +
+        '<span class="mdt-count">本周共 ' + weekCourses.length + ' 节课 · 点击卡片看详情</span></div>' +
+        '<div class="mobile-week-grid">';
+      html += '<div class="mw-corner"></div>';
+      for (d = 0; d < 7; d++) {
+        var isToday = isSameDay(dates[d], today);
+        html += '<div class="mw-head' + (isToday ? ' today' : '') + '">' +
+          '<span class="mwh-name">' + '一二三四五六日'[d] + '</span>' +
+          '<span class="mwh-date">' + dates[d].getDate() + '</span></div>';
+      }
+      for (var s = 0; s < 5; s++) {
+        html += '<div class="mw-slot">' + SLOT_LABELS[s] + '</div>';
+        for (d = 0; d < 7; d++) {
+          var cell = cells[d][s];
+          if (!cell) { html += '<div class="mw-cell"></div>'; continue; }
+          var cc = cell.c;
+          var period = periodRangeOf(cc);
+          html += '<div class="mw-cell has-course" onclick="' + courseClickAttr(cc, period) + '">' +
+            '<div class="mw-chip ' + getCourseColor(cc.name) + '">' +
+            '<div class="mw-chip-name">' + escHtml(cc.name) + (cell.more ? ' +' + cell.more : '') + '</div>' +
+            (cc.location ? '<div class="mw-chip-loc">' + escHtml(cc.location) + '</div>' : '') +
+            '</div></div>';
+        }
+      }
+      html += '</div>';
+      document.getElementById('mobileDayView').innerHTML = html;
     }
 
     // ── 接下来的课程 ──
