@@ -156,6 +156,19 @@
     "teacher": "邓志刚"
   },
   {
+    "name": "软件项目管理",
+    "day": 3,
+    "startWeek": 1,
+    "endWeek": 17,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "软件设计实验室(教26栋403; 教26栋404; 教26栋405; 教26栋406)",
+    "teacher": "丁琼"
+  },
+  {
     "name": "形势与政策Ⅴ",
     "day": 4,
     "startWeek": 5,
