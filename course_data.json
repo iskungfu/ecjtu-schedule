@@ -26,45 +26,6 @@
     "teacher": "邓志刚"
   },
   {
-    "name": "前端框架技术",
-    "day": 3,
-    "startWeek": 1,
-    "endWeek": 8,
-    "sections": [
-      1,
-      2
-    ],
-    "period": "1-2",
-    "location": "31-204",
-    "teacher": "万畅"
-  },
-  {
-    "name": "软件项目管理",
-    "day": 3,
-    "startWeek": 1,
-    "endWeek": 8,
-    "sections": [
-      3,
-      4
-    ],
-    "period": "3-4",
-    "location": "31-522",
-    "teacher": "丁琼"
-  },
-  {
-    "name": "大数据技术基础",
-    "day": 3,
-    "startWeek": 1,
-    "endWeek": 8,
-    "sections": [
-      7,
-      8
-    ],
-    "period": "7-8",
-    "location": "31-519",
-    "teacher": "王辉"
-  },
-  {
     "name": "操作系统",
     "day": 2,
     "startWeek": 1,
@@ -102,6 +63,45 @@
     "period": "7-8",
     "location": "31-220",
     "teacher": "万畅"
+  },
+  {
+    "name": "前端框架技术",
+    "day": 3,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      1,
+      2
+    ],
+    "period": "1-2",
+    "location": "31-204",
+    "teacher": "万畅"
+  },
+  {
+    "name": "软件项目管理",
+    "day": 3,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      3,
+      4
+    ],
+    "period": "3-4",
+    "location": "31-522",
+    "teacher": "丁琼"
+  },
+  {
+    "name": "大数据技术基础",
+    "day": 3,
+    "startWeek": 1,
+    "endWeek": 8,
+    "sections": [
+      7,
+      8
+    ],
+    "period": "7-8",
+    "location": "31-519",
+    "teacher": "王辉"
   },
   {
     "name": "操作系统",
